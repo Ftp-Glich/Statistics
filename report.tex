@@ -1,0 +1,305 @@
+\documentclass[a4paper,14pt]{extarticle}
+\usepackage[utf8]{inputenc}
+\usepackage[T2A]{fontenc}
+\usepackage[english,russian]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{float}
+
+\geometry{left=30mm, right=15mm, top=20mm, bottom=20mm}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2,
+    language=Python
+}
+
+\lstset{style=mystyle}
+
+\begin{document}
+
+
+\begin{titlepage}
+\begin{center}
+\large
+Санкт-Петербургский политехнический университет \\
+Петра Великого \\
+Высшая школа прикладной математики и вычислительной физики \\
+\vspace{3cm}
+
+\textbf{Отчёт по лабораторной работе по дисциплине} \\
+«Математическая статистика» \\
+\vspace{0.5cm}
+
+\textbf{ЛАБОРАТОРНАЯ РАБОТА} \\
+«Гистограммы и плотности распределений» \\
+\vspace{2cm}
+
+Выполнил: Гуцалов Егор Никитич \\
+Группа: 5030102/30201 \\
+\vfill
+
+Санкт-Петербург \\
+2025
+\end{center}
+\end{titlepage}
+
+\section*{2. Постановка задачи}
+
+\textbf{Цель работы:} Знакомство с основными методами описательной статистики: визуализацией распределений, вычислением характеристик положения и рассеяния, анализом выбросов и построением эмпирических оценок функций распределения и плотности.
+
+\textbf{Задачи:}
+\begin{itemize}
+    \item Сгенерировать выборки объемом $n = 10, 100, 1000$ для каждого из 5 распределений
+    \item Построить на одном графике гистограмму выборки и теоретическую кривую плотности распределения
+    \item Освоить принцип группировки данных и построения гистограмм
+    \item Сделать вывод о влиянии размера выборки на определение характера распределения
+\end{itemize}
+
+\textbf{Исследуемые распределения:}
+\begin{enumerate}
+    \item Нормальное $N(0, 1)$
+    \item Коши $C(0, 1)$
+    \item Лапласа $L(0, \frac{1}{\sqrt{2}})$
+    \item Пуассона $P(10)$
+    \item Равномерное $U(-\sqrt{3}, \sqrt{3})$
+\end{enumerate}
+
+\section*{3. Теоретическая часть}
+
+\subsection*{3.1 Гистограмма}
+
+Гистограмма — это ступенчатая функция, которая аппроксимирует плотность распределения. Для построения гистограммы диапазон данных разбивается на интервалы (бины), и для каждого интервала подсчитывается количество попавших в него наблюдений.
+
+Пусть имеется выборка $x_1, x_2, \ldots, x_n$. Диапазон разбивается на $k$ интервалов $[t_{j-1}, t_j)$, $j = 1, \ldots, k$. Тогда гистограмма плотности определяется как:
+
+\begin{equation}
+\hat{f}_n(x) = \frac{1}{n h_j} \sum_{i=1}^{n} I(x_i \in [t_{j-1}, t_j)), \quad x \in [t_{j-1}, t_j)
+\end{equation}
+
+где $h_j = t_j - t_{j-1}$ — ширина $j$-го интервала, $I(\cdot)$ — индикаторная функция.
+
+\subsection*{3.2 Нормальное распределение}
+
+Нормальное распределение $N(\mu, \sigma^2)$ задается плотностью:
+
+\begin{equation}
+f(x) = \frac{1}{\sigma\sqrt{2\pi}} e^{-\frac{(x-\mu)^2}{2\sigma^2}}
+\end{equation}
+
+где $\mu$ — математическое ожидание, $\sigma^2$ — дисперсия.
+
+\subsection*{3.3 Распределение Коши}
+
+Распределение Коши $C(x_0, \gamma)$ имеет плотность:
+
+\begin{equation}
+f(x) = \frac{1}{\pi \gamma \left[1 + \left(\frac{x-x_0}{\gamma}\right)^2\right]}
+\end{equation}
+
+где $x_0$ — параметр сдвига (медиана), $\gamma$ — параметр масштаба.
+
+\subsection*{3.4 Распределение Лапласа}
+
+Распределение Лапласа $L(\mu, b)$ задается плотностью:
+
+\begin{equation}
+f(x) = \frac{1}{2b} e^{-\frac{|x-\mu|}{b}}
+\end{equation}
+
+где $\mu$ — параметр сдвига, $b > 0$ — параметр масштаба.
+
+\subsection*{3.5 Распределение Пуассона}
+
+Распределение Пуассона $P(\lambda)$ — дискретное распределение:
+
+\begin{equation}
+P(X = k) = \frac{\lambda^k e^{-\lambda}}{k!}, \quad k = 0, 1, 2, \ldots
+\end{equation}
+
+где $\lambda > 0$ — интенсивность (среднее количество событий).
+
+\subsection*{3.6 Равномерное распределение}
+
+Равномерное распределение $U(a, b)$ имеет плотность:
+
+\begin{equation}
+f(x) = \begin{cases}
+\frac{1}{b-a}, & a \leq x \leq b \\
+0, & \text{иначе}
+\end{cases}
+\end{equation}
+
+\section*{4. Реализация}
+
+\textbf{Язык программирования:} Python 3.x
+
+\textbf{Используемые библиотеки:}
+\begin{itemize}
+    \item \texttt{numpy} — генерация случайных выборок
+    \item \texttt{matplotlib.pyplot} — визуализация данных
+    \item \texttt{scipy.stats} — теоретические распределения
+\end{itemize}
+
+\textbf{Среда разработки:} Visual Studio Code
+
+\subsection*{Основные этапы реализации:}
+
+\begin{enumerate}
+    \item Генерация выборок заданного объема из каждого распределения
+    \item Построение гистограмм с автоматическим выбором количества бинов
+    \item Наложение теоретических кривых плотности
+    \item Сохранение графиков в файлы
+\end{enumerate}
+
+Пример кода генерации выборки и построения гистограммы:
+
+\begin{lstlisting}[caption={Генерация выборки и построение гистограммы}]
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import stats
+
+n = 1000
+sample = np.random.normal(loc=0, scale=1, size=n)
+
+plt.hist(sample, bins='sqrt', density=True, 
+         alpha=0.6, color='skyblue', 
+         edgecolor='black', label='Histogram')
+
+x = np.linspace(-4, 4, 1000)
+pdf = stats.norm.pdf(x, loc=0, scale=1)
+plt.plot(x, pdf, 'r-', linewidth=2, 
+         label='Theoretical density')
+
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.show()
+\end{lstlisting}
+
+\section*{5. Результаты}
+
+\subsection*{5.1 Нормальное распределение $N(0, 1)$}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{normal_distribution.png}
+\caption{Гистограммы выборки и теоретическая плотность нормального распределения}
+\label{fig:normal}
+\end{figure}
+
+\subsection*{5.2 Распределение Коши $C(0, 1)$}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{cauchy_distribution.png}
+\caption{Гистограммы выборки и теоретическая плотность распределения Коши}
+\label{fig:cauchy}
+\end{figure}
+
+\subsection*{5.3 Распределение Лапласа $L(0, 1/\sqrt{2})$}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{laplace_distribution.png}
+\caption{Гистограммы выборки и теоретическая плотность распределения Лапласа}
+\label{fig:laplace}
+\end{figure}
+
+\subsection*{5.4 Распределение Пуассона $P(10)$}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{poisson_distribution.png}
+\caption{Гистограммы выборки и теоретическая вероятность распределения Пуассона}
+\label{fig:poisson}
+\end{figure}
+
+\subsection*{5.5 Равномерное распределение $U(-\sqrt{3}, \sqrt{3})$}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{uniform_distribution.png}
+\caption{Гистограммы выборки и теоретическая плотность равномерного распределения}
+\label{fig:uniform}
+\end{figure}
+
+\section*{6. Обсуждение}
+
+В ходе выполнения лабораторной работы были получены следующие результаты:
+
+\begin{enumerate}
+    \item \textbf{Влияние объема выборки:} При увеличении объема выборки от $n=10$ до $n=1000$ гистограмма все лучше приближается к теоретической кривой плотности. Это согласуется с законом больших чисел.
+    
+    \item \textbf{Нормальное распределение:} Гистограмма при $n=1000$ практически идеально совпадает с теоретической кривой. Распределение симметрично относительно нуля.
+    
+    \item \textbf{Распределение Коши:} Имеет более тяжелые хвосты по сравнению с нормальным распределением. Наблюдаются значительные выбросы, что характерно для данного распределения.
+    
+    \item \textbf{Распределение Лапласа:} Отличается более острым пиком в центре по сравнению с нормальным распределением.
+    
+    \item \textbf{Распределение Пуассона:} Как дискретное распределение, визуализировано с помощью stem-plot. При $\lambda=10$ приближается к нормальному.
+    
+    \item \textbf{Равномерное распределение:} Гистограмма имеет характерную прямоугольную форму, все значения в интервале равновероятны.
+\end{enumerate}
+
+\section*{7. Выводы}
+
+\begin{enumerate}
+    \item Освоен принцип построения гистограмм для визуализации эмпирических распределений.
+    
+    \item Показано, что с ростом объема выборки эмпирическое распределение стремится к теоретическому.
+    
+    \item Изучены характеристики пяти различных типов распределений: непрерывных (нормальное, Коши, Лапласа, равномерное) и дискретного (Пуассона).
+    
+    \item Подтверждено, что выбор оптимального количества интервалов группировки важен для адекватного представления данных.
+    
+    \item Приобретены практические навыки работы с библиотеками Python для статистического анализа данных.
+\end{enumerate}
+
+\section*{8. Список литературы}
+
+\begin{enumerate}
+    \item Гмурман В.Е. Теория вероятностей и математическая статистика. — М.: Высшая школа, 2003.
+    
+    \item Кобецкая И.А. Математическая статистика: Учебное пособие. — СПб.: Лань, 2019.
+    
+    \item McKinney W. Python for Data Analysis. — O'Reilly Media, 2022.
+    
+    \item SciPy documentation. URL: \url{https://docs.scipy.org/doc/scipy/}
+    
+    \item Matplotlib documentation. URL: \url{https://matplotlib.org/stable/contents.html}
+\end{enumerate}
+
+\section*{9. Приложение}
+
+Исходный код программы размещен в репозитории GitHub:
+
+\url{https://github.com/Ftp-Glich/Statistics}
+
+\end{document}

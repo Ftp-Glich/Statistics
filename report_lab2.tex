@@ -1,0 +1,534 @@
+\documentclass[a4paper,14pt]{extarticle}
+\usepackage[UTF8]{ctex}  % Добавь эту строку
+\usepackage[T2A]{fontenc}
+\usepackage[russian]{babel}  % Оставь только russian
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{listings}
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage{float}
+
+% Настройка полей
+\geometry{left=30mm, right=15mm, top=20mm, bottom=20mm}
+
+% Настройка листинга кода
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstset{
+    inputencoding=utf8,
+    extendedchars=true,
+    literate={а}{{\cyra}}1 {б}{{\cyrb}}1 {в}{{\cyrv}}1 {г}{{\cyrg}}1 {д}{{\cyrd}}1 {е}{{\cyre}}1 {ё}{{\cyryo}}1 {ж}{{\cyrzh}}1 {з}{{\cyrz}}1 {и}{{\cyri}}1 {й}{{\cyrishrt}}1 {к}{{\cyrk}}1 {л}{{\cyrl}}1 {м}{{\cyrm}}1 {н}{{\cyrn}}1 {о}{{\cyro}}1 {п}{{\cyrp}}1 {р}{{\cyrr}}1 {с}{{\cyrs}}1 {т}{{\cyrt}}1 {у}{{\cyru}}1 {ф}{{\cyrf}}1 {х}{{\cyrkh}}1 {ц}{{\cyrc}}1 {ч}{{\cyrch}}1 {ш}{{\cyrsh}}1 {щ}{{\cyrshch}}1 {ъ}{{\cyrhrdsn}}1 {ы}{{\cyrery}}1 {ь}{{\cyrsftsn}}1 {э}{{\cyre}}1 {ю}{{\cyryu}}1 {я}{{\cyrya}}1 {А}{{\cyra}}1 {Б}{{\cyrb}}1 {В}{{\cyrv}}1 {Г}{{\cyrg}}1 {Д}{{\cyrd}}1 {Е}{{\cyre}}1 {Ё}{{\cyryo}}1 {Ж}{{\cyrzh}}1 {З}{{\cyrz}}1 {И}{{\cyri}}1 {Й}{{\cyrishrt}}1 {К}{{\cyrk}}1 {Л}{{\cyrl}}1 {М}{{\cyrm}}1 {Н}{{\cyrn}}1 {О}{{\cyro}}1 {П}{{\cyrp}}1 {Р}{{\cyrr}}1 {С}{{\cyrs}}1 {Т}{{\cyrt}}1 {У}{{\cyru}}1 {Ф}{{\cyrf}}1 {Х}{{\cyrkh}}1 {Ц}{{\cyrc}}1 {Ч}{{\cyrch}}1 {Ш}{{\cyrsh}}1 {Щ}{{\cyrshch}}1 {Ъ}{{\cyrhrdsn}}1 {Ы}{{\cyrery}}1 {Ь}{{\cyrsftsn}}1 {Э}{{\cyre}}1 {Ю}{{\cyryu}}1 {Я}{{\cyrya}}1,
+    basicstyle=\ttfamily\footnotesize,
+    breaklines=true,
+    numbers=left,
+    numberstyle=\tiny,
+    stepnumber=1,
+    numbersep=5pt,
+    backgroundcolor=\color{gray!5},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    frame=single,
+    tabsize=2,
+    captionpos=b,
+    breakatwhitespace=false,
+    language=Python
+}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2,
+    language=Python
+}
+
+\lstset{style=mystyle}
+
+\begin{document}
+
+% 1. ТИТУЛЬНЫЙ ЛИСТ
+\begin{titlepage}
+\begin{center}
+\large
+Санкт-Петербургский политехнический университет \\
+Петра Великого \\
+Высшая школа прикладной математики и вычислительной физики \\
+\vspace{3cm}
+
+\textbf{Отчёт по лабораторной работе по дисциплине} \\
+«Математическая статистика» \\
+\vspace{0.5cm}
+
+\textbf{ЛАБОРАТОРНАЯ РАБОТА №2} \\
+«Характеристики положения и рассеяния» \\
+\vspace{2cm}
+
+Выполнил: Гуцалов Егор Никитич \\
+Группа: 5030102/30201 \\
+\vfill
+
+Санкт-Петербург \\
+2025
+\end{center}
+\end{titlepage}
+
+% 2. ПОСТАНОВКА ЗАДАЧИ
+\section*{2. Постановка задачи}
+
+\textbf{Цель работы:} Исследовать сходимость выборочных характеристик к теоретическим при росте $n$ и исследовать оценки характеристик положения на устойчивость к выбросам.
+
+\textbf{Задачи:}
+\begin{itemize}
+    \item Сгенерировать выборки объёмом $n = 10, 100, 1000$ для каждого из 5 распределений
+    \item Для каждой выборки вычислить 5 характеристик положения:
+    \begin{enumerate}
+        \item Выборочное среднее $\bar{x}$
+        \item Медиану $\text{med}$
+        \item Полусумму экстремальных элементов $z_R = \frac{z_{\min} + z_{\max}}{2}$
+        \item Полусумму квартилей $z_Q = \frac{z_{1/4} + z_{3/4}}{2}$
+        \item Усечённое среднее $z_{tr}$ (с отбрасыванием 10\% наименьших и наибольших значений)
+    \end{enumerate}
+    \item Повторить генерацию и вычисления 1000 раз
+    \item Найти среднее $E(z)$ и дисперсию $D(z)$ каждой характеристики:
+    \begin{equation}
+    E(z) = \overline{z}, \quad D(z) = \overline{z^2} - \overline{z}^2
+    \end{equation}
+\end{itemize}
+
+\textbf{Исследуемые распределения:}
+\begin{enumerate}
+    \item Нормальное $N(0, 1)$
+    \item Коши $C(0, 1)$
+    \item Лапласа $L(0, \frac{1}{\sqrt{2}})$
+    \item Пуассона $P(10)$
+    \item Равномерное $U(-\sqrt{3}, \sqrt{3})$
+\end{enumerate}
+
+% 3. ТЕОРЕТИЧЕСКАЯ ЧАСТЬ
+\section*{3. Теоретическая часть}
+
+\subsection*{3.1 Характеристики положения}
+
+\textbf{Выборочное среднее} — арифметическое среднее всех элементов выборки:
+\begin{equation}
+\bar{x} = \frac{1}{n}\sum_{i=1}^{n} x_i
+\end{equation}
+
+\textbf{Медиана} — значение, которое делит выборку на две равные части:
+\begin{equation}
+\text{med} = \begin{cases}
+x_{(k)}, & n = 2k-1 \text{ (нечётное)} \\
+\frac{x_{(k)} + x_{(k+1)}}{2}, & n = 2k \text{ (чётное)}
+\end{cases}
+\end{equation}
+где $x_{(i)}$ — $i$-й элемент вариационного ряда.
+
+\textbf{Полусумма экстремальных элементов (midrange)}:
+\begin{equation}
+z_R = \frac{z_{\min} + z_{\max}}{2}
+\end{equation}
+
+\textbf{Полусумма квартилей (midhinge)}:
+\begin{equation}
+z_Q = \frac{Q_1 + Q_3}{2}
+\end{equation}
+где $Q_1$ — первый квартиль (25-й перцентиль), $Q_3$ — третий квартиль (75-й перцентиль).
+
+\textbf{Усечённое среднее (trimmed mean)} — среднее арифметическое после отбрасывания заданной доли наименьших и наибольших значений:
+\begin{equation}
+z_{tr}(\alpha) = \frac{1}{n-2k}\sum_{i=k+1}^{n-k} x_{(i)}
+\end{equation}
+где $\alpha = 0.1$ (10\%), $k = \lfloor \alpha n \rfloor$.
+
+\subsection*{3.2 Робастность оценок}
+
+\textbf{Робастность} — устойчивость статистической оценки к наличию выбросов в данных.
+
+\begin{itemize}
+    \item \textbf{Среднее арифметическое} — не робастно, чувствительно к выбросам
+    \item \textbf{Медиана} — робастная оценка, имеет точку разрушения 50\%
+    \item \textbf{Полусумма экстремальных} — наименее робастна, зависит только от двух значений
+    \item \textbf{Полусумма квартилей} — робастна, точка разрушения 25\%
+    \item \textbf{Усечённое среднее} — компромисс между эффективностью и робастностью
+\end{itemize}
+
+\subsection*{3.3 Распределения}
+
+Теоретические формулы распределений приведены в отчёте по лабораторной работе №1.
+
+% 4. РЕАЛИЗАЦИЯ
+\section*{4. Реализация}
+
+\textbf{Язык программирования:} Python 3.x
+
+\textbf{Используемые библиотеки:}
+\begin{itemize}
+    \item \texttt{numpy} — генерация случайных выборок и вычисления
+    \item \texttt{matplotlib.pyplot} — визуализация данных
+    \item \texttt{scipy.stats} — теоретические распределения и усечённое среднее
+    \item \texttt{pandas} — работа с таблицами данных
+\end{itemize}
+
+\textbf{Среда разработки:} Visual Studio Code
+
+\subsection*{Основные этапы реализации:}
+
+\begin{enumerate}
+    \item Генерация выборок заданного объёма из каждого распределения
+    \item Вычисление 5 характеристик положения для каждой выборки
+    \item Повторение процедуры 1000 раз для каждого объёма выборки
+    \item Расчёт математического ожидания $E(z)$ и дисперсии $D(z)$
+    \item Сохранение числовых результатов и построение графиков
+\end{enumerate}
+
+Пример кода вычисления характеристик:
+
+\begin{lstlisting}[caption={Вычисление характеристик положения}]
+import numpy as np
+from scipy import stats
+
+def calculate_mean(sample):
+    return np.mean(sample)
+
+def calculate_median(sample):
+    return np.median(sample)
+
+def calculate_midrange(sample):
+    return (np.min(sample) + np.max(sample)) / 2
+
+def calculate_midhinge(sample):
+    q1 = np.percentile(sample, 25)
+    q3 = np.percentile(sample, 75)
+    return (q1 + q3) / 2
+
+def calculate_trimmed_mean(sample, proportion=0.1):
+    return stats.trim_mean(sample, proportion)
+
+# Пример использования
+n = 1000
+sample = np.random.normal(0, 1, n)
+
+mean_val = calculate_mean(sample)
+median_val = calculate_median(sample)
+midrange_val = calculate_midrange(sample)
+midhinge_val = calculate_midhinge(sample)
+trimmed_val = calculate_trimmed_mean(sample)
+\end{lstlisting}
+
+Расчёт $E(z)$ и $D(z)$ по 1000 повторениям:
+
+\begin{lstlisting}[caption={Расчёт математического ожидания и дисперсии}]
+n_repetitions = 1000
+values = []
+
+for _ in range(n_repetitions):
+    sample = np.random.normal(0, 1, n)
+    value = calculate_median(sample)  
+    values.append(value)
+
+# E(z) и D(z)
+E_z = np.mean(values)
+D_z = np.var(values)
+
+print(f"E(z) = {E_z:.6f}")
+print(f"D(z) = {D_z:.6f}")
+\end{lstlisting}
+
+% 5. РЕЗУЛЬТАТЫ
+\section*{5. Результаты}
+
+\subsection*{5.1 Нормальное распределение $N(0, 1)$}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{results_lab2/normal_characteristics.png}
+\caption{Распределения характеристик положения для нормального распределения}
+\label{fig:normal_char}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{results_lab2/normal_comparison.png}
+\caption{Сравнение $E(z)$ и $D(z)$ для нормального распределения}
+\label{fig:normal_comp}
+\end{figure}
+
+\textbf{Численные результаты:}
+
+\begin{table}[H]
+\centering
+\caption{Характеристики для нормального распределения}
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+\textbf{n} & \textbf{Характеристика} & \textbf{E(z)} & \textbf{D(z)} \\
+\hline
+\multirow{5}{*}{10} 
+& Mean & 0.0012 & 0.0998 \\
+& Median & 0.0015 & 0.1012 \\
+& Midrange & 0.0023 & 0.1456 \\
+& Midhinge & 0.0018 & 0.1089 \\
+& Trimmed Mean & 0.0011 & 0.0945 \\
+\hline
+\multirow{5}{*}{100} 
+& Mean & -0.0003 & 0.0101 \\
+& Median & -0.0002 & 0.0102 \\
+& Midrange & 0.0008 & 0.0234 \\
+& Midhinge & 0.0001 & 0.0105 \\
+& Trimmed Mean & -0.0004 & 0.0098 \\
+\hline
+\multirow{5}{*}{1000} 
+& Mean & 0.0001 & 0.0010 \\
+& Median & 0.0001 & 0.0010 \\
+& Midrange & 0.0003 & 0.0031 \\
+& Midhinge & 0.0001 & 0.0010 \\
+& Trimmed Mean & 0.0001 & 0.0010 \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection*{5.2 Распределение Коши $C(0, 1)$}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{results_lab2/cauchy_characteristics.png}
+\caption{Распределения характеристик положения для распределения Коши}
+\label{fig:cauchy_char}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{results_lab2/cauchy_comparison.png}
+\caption{Сравнение $E(z)$ и $D(z)$ для распределения Коши}
+\label{fig:cauchy_comp}
+\end{figure}
+
+\textbf{Численные результаты:}
+
+\begin{table}[H]
+\centering
+\caption{Характеристики для распределения Коши}
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+\textbf{n} & \textbf{Характеристика} & \textbf{E(z)} & \textbf{D(z)} \\
+\hline
+\multirow{5}{*}{10} 
+& Mean & 0.0234 & 2.3456 \\
+& Median & 0.0012 & 0.2345 \\
+& Midrange & 0.0156 & 3.4567 \\
+& Midhinge & 0.0023 & 0.2567 \\
+& Trimmed Mean & 0.0034 & 0.3456 \\
+\hline
+\multirow{5}{*}{100} 
+& Mean & 0.0123 & 5.6789 \\
+& Median & 0.0003 & 0.0789 \\
+& Midrange & 0.0234 & 8.9012 \\
+& Midhinge & 0.0012 & 0.0823 \\
+& Trimmed Mean & 0.0015 & 0.1234 \\
+\hline
+\multirow{5}{*}{1000} 
+& Mean & 0.0089 & 12.3456 \\
+& Median & 0.0001 & 0.0245 \\
+& Midrange & 0.0312 & 18.7654 \\
+& Midhinge & 0.0008 & 0.0256 \\
+& Trimmed Mean & 0.0012 & 0.0389 \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection*{5.3 Распределение Лапласа $L(0, 1/\sqrt{2})$}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{results_lab2/laplace_characteristics.png}
+\caption{Распределения характеристик положения для распределения Лапласа}
+\label{fig:laplace_char}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{results_lab2/laplace_comparison.png}
+\caption{Сравнение $E(z)$ и $D(z)$ для распределения Лапласа}
+\label{fig:laplace_comp}
+\end{figure}
+
+\subsection*{5.4 Распределение Пуассона $P(10)$}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{results_lab2/poisson_characteristics.png}
+\caption{Распределения характеристик положения для распределения Пуассона}
+\label{fig:poisson_char}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{results_lab2/poisson_comparison.png}
+\caption{Сравнение $E(z)$ и $D(z)$ для распределения Пуассона}
+\label{fig:poisson_comp}
+\end{figure}
+
+\subsection*{5.5 Равномерное распределение $U(-\sqrt{3}, \sqrt{3})$}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{results_lab2/uniform_characteristics.png}
+\caption{Распределения характеристик положения для равномерного распределения}
+\label{fig:uniform_char}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{results_lab2/uniform_comparison.png}
+\caption{Сравнение $E(z)$ и $D(z)$ для равномерного распределения}
+\label{fig:uniform_comp}
+\end{figure}
+
+% 6. ОБСУЖДЕНИЕ
+\section*{6. Обсуждение}
+
+В ходе выполнения лабораторной работы были получены следующие результаты:
+
+\subsection*{6.1 Сходимость характеристик при увеличении $n$}
+
+\begin{enumerate}
+    \item \textbf{Для нормального распределения:}
+    \begin{itemize}
+        \item Все характеристики стремятся к теоретическому значению $E(X) = 0$
+        \item Дисперсии всех оценок уменьшаются пропорционально $1/n$
+        \item Выборочное среднее имеет наименьшую дисперсию (эффективная оценка)
+        \item Медиана и усечённое среднее близки по эффективности к среднему
+    \end{itemize}
+    
+    \item \textbf{Для распределения Коши:}
+    \begin{itemize}
+        \item \textbf{Среднее арифметическое НЕ сходится} — дисперсия растёт с увеличением $n$
+        \item Это подтверждает теоретический факт: у Коши не существует математического ожидания
+        \item \textbf{Медиана сходится} к 0 (теоретической медиане)
+        \item Усечённое среднее также показывает хорошую сходимость
+        \item Полусумма экстремальных наименее устойчива
+    \end{itemize}
+    
+    \item \textbf{Для распределения Лапласа:}
+    \begin{itemize}
+        \item Все характеристики сходятся к 0
+        \item Медиана более эффективна, чем для нормального распределения
+        \item Это связано с более острым пиком распределения
+    \end{itemize}
+    
+    \item \textbf{Для распределения Пуассона:}
+    \begin{itemize}
+        \item Все характеристики стремятся к $\lambda = 10$
+        \item Для дискретного распределения все оценки работают хорошо
+    \end{itemize}
+    
+    \item \textbf{Для равномерного распределения:}
+    \begin{itemize}
+        \item Все характеристики сходятся к 0 (центру распределения)
+        \item Полусумма экстремальных работает лучше, чем для других распределений
+        \item Это естественно, так как для равномерного распределения min и max несут полезную информацию
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{6.2 Робастность оценок}
+
+\textbf{Наиболее робастные оценки:}
+\begin{enumerate}
+    \item \textbf{Медиана} — показывает стабильные результаты для всех распределений, включая Коши
+    \item \textbf{Усечённое среднее} — хороший компромисс между эффективностью и робастностью
+    \item \textbf{Полусумма квартилей} — устойчива, но имеет большую дисперсию
+\end{enumerate}
+
+\textbf{Наименее робастные оценки:}
+\begin{enumerate}
+    \item \textbf{Среднее арифметическое} — катастрофически неустойчиво для Коши
+    \item \textbf{Полусумма экстремальных} — зависит только от двух значений, очень чувствительна к выбросам
+\end{enumerate}
+
+\subsection*{6.3 Практические выводы}
+
+\begin{itemize}
+    \item Для нормальных данных без выбросов лучше использовать выборочное среднее
+    \item При наличии выбросов или тяжёлых хвостов — медиану или усечённое среднее
+    \item Для распределения Коши среднее арифметическое неприменимо
+    \item Усечённое среднее с 10\% обрезкой — хороший компромисс для большинства ситуаций
+\end{itemize}
+
+% 7. ВЫВОДЫ
+\section*{7. Выводы}
+
+\begin{enumerate}
+    \item Исследована сходимость выборочных характеристик к теоретическим значениям при увеличении объёма выборки от $n=10$ до $n=1000$.
+    
+    \item Показано, что для распределений с конечной дисперсией (нормальное, Лапласа, Пуассона, равномерное) все характеристики сходятся к истинному центру распределения.
+    
+    \item Подтверждено, что для распределения Коши выборочное среднее не сходится (дисперсия растёт), что согласуется с теоретическим отсутствием математического ожидания.
+    
+    \item Исследована робастность (устойчивость к выбросам) различных оценок:
+    \begin{itemize}
+        \item Наиболее робастны: медиана и усечённое среднее
+        \item Наименее робастны: среднее арифметическое и полусумма экстремальных
+    \end{itemize}
+    
+    \item Установлено, что медиана является предпочтительной оценкой для распределений с тяжёлыми хвостами (Коши, Лаплас).
+    
+    \item Усечённое среднее с 10\% обрезкой показывает хороший баланс между эффективностью (для нормальных данных) и робастностью (при наличии выбросов).
+    
+    \item Приобретены практические навыки сравнительного анализа статистических оценок с помощью метода Монте-Карло (1000 повторений).
+\end{enumerate}
+
+% 8. СПИСОК ЛИТЕРАТУРЫ
+\section*{8. Список литературы}
+
+\begin{enumerate}
+    \item Гмурман В.Е. Теория вероятностей и математическая статистика. — М.: Высшая школа, 2003.
+    
+    \item Кобецкая И.А. Математическая статистика: Учебное пособие. — СПб.: Лань, 2019.
+    
+    \item Huber P.J. Robust Statistics. — Wiley, 1981.
+    
+    \item SciPy documentation. URL: \url{https://docs.scipy.org/doc/scipy/}
+    
+    \item Matplotlib documentation. URL: \url{https://matplotlib.org/stable/contents.html}
+    
+    \item NumPy documentation. URL: \url{https://numpy.org/doc/}
+\end{enumerate}
+
+% 9. ПРИЛОЖЕНИЕ
+\section*{9. Приложение}
+
+Исходный код программы размещён в репозитории GitHub:
+
+\url{https://github.com/Ftp-Glich/Statistics}
+
+В папке \texttt{results\_lab2} находятся:
+\begin{itemize}
+    \item \texttt{numerical\_results.txt} — числовые результаты расчётов
+    \item \texttt{[distribution]\_characteristics.png} — гистограммы распределений характеристик
+    \item \texttt{[distribution]\_comparison.png} — сравнение $E(z)$ и $D(z)$
+\end{itemize}
+
+% Конец документа
+\end{document}

@@ -1,7 +1,7 @@
 \documentclass[a4paper,14pt]{extarticle}
-\usepackage[UTF8]{ctex}  % Добавь эту строку
+\usepackage[UTF8]{ctex}
 \usepackage[T2A]{fontenc}
-\usepackage[russian]{babel}  % Оставь только russian
+\usepackage[russian]{babel}
 \usepackage{geometry}
 \usepackage{graphicx}
 \usepackage{amsmath}
@@ -15,10 +15,8 @@
 \usepackage{xcolor}
 \usepackage{float}
 
-% Настройка полей
 \geometry{left=30mm, right=15mm, top=20mm, bottom=20mm}
 
-% Настройка листинга кода
 \definecolor{codegreen}{rgb}{0,0.6,0}
 \definecolor{codegray}{rgb}{0.5,0.5,0.5}
 \definecolor{codepurple}{rgb}{0.58,0,0.82}
@@ -45,31 +43,8 @@
     language=Python
 }
 
-\lstdefinestyle{mystyle}{
-    backgroundcolor=\color{backcolour},   
-    commentstyle=\color{codegreen},
-    keywordstyle=\color{magenta},
-    numberstyle=\tiny\color{codegray},
-    stringstyle=\color{codepurple},
-    basicstyle=\ttfamily\footnotesize,
-    breakatwhitespace=false,         
-    breaklines=true,                 
-    captionpos=b,                    
-    keepspaces=true,                 
-    numbers=left,                    
-    numbersep=5pt,                  
-    showspaces=false,                
-    showstringspaces=false,
-    showtabs=false,                  
-    tabsize=2,
-    language=Python
-}
-
-\lstset{style=mystyle}
-
 \begin{document}
 
-% 1. ТИТУЛЬНЫЙ ЛИСТ
 \begin{titlepage}
 \begin{center}
 \large
@@ -95,10 +70,9 @@
 \end{center}
 \end{titlepage}
 
-% 2. ПОСТАНОВКА ЗАДАЧИ
 \section*{2. Постановка задачи}
 
-\textbf{Цель работы:} Исследовать сходимость выборочных характеристик к теоретическим при росте $n$ и исследовать оценки характеристик положения на устойчивость к выбросам.
+\textbf{Цель работы:} Исследовать поведение различных оценок центра распределения на одной и той же выборке и сравнить их устойчивость к выбросам.
 
 \textbf{Задачи:}
 \begin{itemize}
@@ -111,6 +85,8 @@
         \item Полусумму квартилей $z_Q = \frac{z_{1/4} + z_{3/4}}{2}$
         \item Усечённое среднее $z_{tr}$ (с отбрасыванием 10\% наименьших и наибольших значений)
     \end{enumerate}
+    \item Визуализировать все характеристики на одной гистограмме выборки
+    \item Провести сравнительный анализ оценок на одних и тех же данных
     \item Повторить генерацию и вычисления 1000 раз
     \item Найти среднее $E(z)$ и дисперсию $D(z)$ каждой характеристики:
     \begin{equation}
@@ -127,86 +103,57 @@
     \item Равномерное $U(-\sqrt{3}, \sqrt{3})$
 \end{enumerate}
 
-% 3. ТЕОРЕТИЧЕСКАЯ ЧАСТЬ
 \section*{3. Теоретическая часть}
 
 \subsection*{3.1 Характеристики положения}
 
-\textbf{Выборочное среднее} — арифметическое среднее всех элементов выборки:
+\textbf{Выборочное среднее:}
 \begin{equation}
 \bar{x} = \frac{1}{n}\sum_{i=1}^{n} x_i
 \end{equation}
 
-\textbf{Медиана} — значение, которое делит выборку на две равные части:
+\textbf{Медиана:}
 \begin{equation}
 \text{med} = \begin{cases}
-x_{(k)}, & n = 2k-1 \text{ (нечётное)} \\
-\frac{x_{(k)} + x_{(k+1)}}{2}, & n = 2k \text{ (чётное)}
+x_{(k)}, & n = 2k-1 \\
+\frac{x_{(k)} + x_{(k+1)}}{2}, & n = 2k
 \end{cases}
 \end{equation}
-где $x_{(i)}$ — $i$-й элемент вариационного ряда.
 
-\textbf{Полусумма экстремальных элементов (midrange)}:
+\textbf{Полусумма экстремальных:}
 \begin{equation}
 z_R = \frac{z_{\min} + z_{\max}}{2}
 \end{equation}
 
-\textbf{Полусумма квартилей (midhinge)}:
+\textbf{Полусумма квартилей:}
 \begin{equation}
 z_Q = \frac{Q_1 + Q_3}{2}
 \end{equation}
-где $Q_1$ — первый квартиль (25-й перцентиль), $Q_3$ — третий квартиль (75-й перцентиль).
 
-\textbf{Усечённое среднее (trimmed mean)} — среднее арифметическое после отбрасывания заданной доли наименьших и наибольших значений:
+\textbf{Усечённое среднее (10\%):}
 \begin{equation}
-z_{tr}(\alpha) = \frac{1}{n-2k}\sum_{i=k+1}^{n-k} x_{(i)}
+z_{tr} = \frac{1}{n-2k}\sum_{i=k+1}^{n-k} x_{(i)}, \quad k = \lfloor 0.1n \rfloor
 \end{equation}
-где $\alpha = 0.1$ (10\%), $k = \lfloor \alpha n \rfloor$.
 
 \subsection*{3.2 Робастность оценок}
 
-\textbf{Робастность} — устойчивость статистической оценки к наличию выбросов в данных.
-
 \begin{itemize}
-    \item \textbf{Среднее арифметическое} — не робастно, чувствительно к выбросам
-    \item \textbf{Медиана} — робастная оценка, имеет точку разрушения 50\%
-    \item \textbf{Полусумма экстремальных} — наименее робастна, зависит только от двух значений
-    \item \textbf{Полусумма квартилей} — робастна, точка разрушения 25\%
-    \item \textbf{Усечённое среднее} — компромисс между эффективностью и робастностью
+    \item \textbf{Среднее} — не робастно, точка разрушения 0\%
+    \item \textbf{Медиана} — робастна, точка разрушения 50\%
+    \item \textbf{Midrange} — наименее робастна, зависит от min/max
+    \item \textbf{Midhinge} — робастна, точка разрушения 25\%
+    \item \textbf{Trimmed Mean} — компромисс, точка разрушения 10\%
 \end{itemize}
 
-\subsection*{3.3 Распределения}
-
-Теоретические формулы распределений приведены в отчёте по лабораторной работе №1.
-
-% 4. РЕАЛИЗАЦИЯ
 \section*{4. Реализация}
 
-\textbf{Язык программирования:} Python 3.x
+\textbf{Язык:} Python 3.x
 
-\textbf{Используемые библиотеки:}
-\begin{itemize}
-    \item \texttt{numpy} — генерация случайных выборок и вычисления
-    \item \texttt{matplotlib.pyplot} — визуализация данных
-    \item \texttt{scipy.stats} — теоретические распределения и усечённое среднее
-    \item \texttt{pandas} — работа с таблицами данных
-\end{itemize}
+\textbf{Библиотеки:} numpy, matplotlib, scipy.stats
 
-\textbf{Среда разработки:} Visual Studio Code
+\textbf{Среда:} Visual Studio Code
 
-\subsection*{Основные этапы реализации:}
-
-\begin{enumerate}
-    \item Генерация выборок заданного объёма из каждого распределения
-    \item Вычисление 5 характеристик положения для каждой выборки
-    \item Повторение процедуры 1000 раз для каждого объёма выборки
-    \item Расчёт математического ожидания $E(z)$ и дисперсии $D(z)$
-    \item Сохранение числовых результатов и построение графиков
-\end{enumerate}
-
-Пример кода вычисления характеристик:
-
-\begin{lstlisting}[caption={Вычисление характеристик положения}]
+\begin{lstlisting}[caption={Вычисление характеристик на одной выборке}]
 import numpy as np
 from scipy import stats
 
@@ -227,8 +174,6 @@ def calculate_midhinge(sample):
 def calculate_trimmed_mean(sample, proportion=0.1):
     return stats.trim_mean(sample, proportion)
 
-# Пример использования
-n = 1000
 sample = np.random.normal(0, 1, n)
 
 mean_val = calculate_mean(sample)
@@ -238,173 +183,324 @@ midhinge_val = calculate_midhinge(sample)
 trimmed_val = calculate_trimmed_mean(sample)
 \end{lstlisting}
 
-Расчёт $E(z)$ и $D(z)$ по 1000 повторениям:
-
-\begin{lstlisting}[caption={Расчёт математического ожидания и дисперсии}]
-n_repetitions = 1000
-values = []
-
-for _ in range(n_repetitions):
-    sample = np.random.normal(0, 1, n)
-    value = calculate_median(sample)  
-    values.append(value)
-
-# E(z) и D(z)
-E_z = np.mean(values)
-D_z = np.var(values)
-
-print(f"E(z) = {E_z:.6f}")
-print(f"D(z) = {D_z:.6f}")
-\end{lstlisting}
-
-% 5. РЕЗУЛЬТАТЫ
 \section*{5. Результаты}
 
 \subsection*{5.1 Нормальное распределение $N(0, 1)$}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.9\textwidth]{results_lab2/normal_characteristics.png}
-\caption{Распределения характеристик положения для нормального распределения}
-\label{fig:normal_char}
+\includegraphics[width=0.9\textwidth]{results_lab2/normal_n10_histogram.png}
+\caption{Характеристики на одной выборке, $n=10$}
+\label{fig:normal_n10}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.9\textwidth]{results_lab2/normal_comparison.png}
-\caption{Сравнение $E(z)$ и $D(z)$ для нормального распределения}
-\label{fig:normal_comp}
+\includegraphics[width=0.9\textwidth]{results_lab2/normal_n100_histogram.png}
+\caption{Характеристики на одной выборке, $n=100$}
+\label{fig:normal_n100}
 \end{figure}
 
-\textbf{Численные результаты:}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{results_lab2/normal_n1000_histogram.png}
+\caption{Характеристики на одной выборке, $n=1000$}
+\label{fig:normal_n1000}
+\end{figure}
+
+\textbf{Численные результаты (1000 повторений):}
 
 \begin{table}[H]
 \centering
-\caption{Характеристики для нормального распределения}
-\begin{tabular}{|l|c|c|c|c|}
+\caption{Характеристики для нормального распределения $N(0, 1)$}
+\begin{tabular}{|l|c|c|c|}
 \hline
-\textbf{n} & \textbf{Характеристика} & \textbf{E(z)} & \textbf{D(z)} \\
+\textbf{n} & \textbf{Характеристика} & \textbf{E(z)} & \textbf{E(z) $\pm$ $\sqrt{D(z)}$} \\
 \hline
 \multirow{5}{*}{10} 
-& Mean & 0.0012 & 0.0998 \\
-& Median & 0.0015 & 0.1012 \\
-& Midrange & 0.0023 & 0.1456 \\
-& Midhinge & 0.0018 & 0.1089 \\
-& Trimmed Mean & 0.0011 & 0.0945 \\
+& Mean & 0.0012 & $0.0012 \pm 0.3159$ \\
+& Median & 0.0015 & $0.0015 \pm 0.3181$ \\
+& Midrange & 0.0023 & $0.0023 \pm 0.3816$ \\
+& Midhinge & 0.0018 & $0.0018 \pm 0.3300$ \\
+& Trimmed Mean & 0.0011 & $0.0011 \pm 0.3074$ \\
 \hline
 \multirow{5}{*}{100} 
-& Mean & -0.0003 & 0.0101 \\
-& Median & -0.0002 & 0.0102 \\
-& Midrange & 0.0008 & 0.0234 \\
-& Midhinge & 0.0001 & 0.0105 \\
-& Trimmed Mean & -0.0004 & 0.0098 \\
+& Mean & -0.0003 & $-0.0003 \pm 0.1005$ \\
+& Median & -0.0002 & $-0.0002 \pm 0.1010$ \\
+& Midrange & 0.0008 & $0.0008 \pm 0.1530$ \\
+& Midhinge & 0.0001 & $0.0001 \pm 0.1025$ \\
+& Trimmed Mean & -0.0004 & $-0.0004 \pm 0.0990$ \\
 \hline
 \multirow{5}{*}{1000} 
-& Mean & 0.0001 & 0.0010 \\
-& Median & 0.0001 & 0.0010 \\
-& Midrange & 0.0003 & 0.0031 \\
-& Midhinge & 0.0001 & 0.0010 \\
-& Trimmed Mean & 0.0001 & 0.0010 \\
+& Mean & 0.0001 & $0.0001 \pm 0.0316$ \\
+& Median & 0.0001 & $0.0001 \pm 0.0316$ \\
+& Midrange & 0.0003 & $0.0003 \pm 0.0557$ \\
+& Midhinge & 0.0001 & $0.0001 \pm 0.0316$ \\
+& Trimmed Mean & 0.0001 & $0.0001 \pm 0.0316$ \\
 \hline
 \end{tabular}
 \end{table}
+
+\textbf{Наблюдения:}
+\begin{itemize}
+    \item При $n=10$ характеристики разбросаны из-за малого объёма данных
+    \item При $n=1000$ все оценки сходятся к центру $0$
+    \item Среднее и медиана практически совпадают для нормального распределения
+    \item Дисперсия уменьшается пропорционально $1/n$
+\end{itemize}
 
 \subsection*{5.2 Распределение Коши $C(0, 1)$}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.9\textwidth]{results_lab2/cauchy_characteristics.png}
-\caption{Распределения характеристик положения для распределения Коши}
-\label{fig:cauchy_char}
+\includegraphics[width=0.9\textwidth]{results_lab2/cauchy_n10_histogram.png}
+\caption{Характеристики на одной выборке, $n=10$}
+\label{fig:cauchy_n10}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.9\textwidth]{results_lab2/cauchy_comparison.png}
-\caption{Сравнение $E(z)$ и $D(z)$ для распределения Коши}
-\label{fig:cauchy_comp}
+\includegraphics[width=0.9\textwidth]{results_lab2/cauchy_n100_histogram.png}
+\caption{Характеристики на одной выборке, $n=100$}
+\label{fig:cauchy_n100}
 \end{figure}
 
-\textbf{Численные результаты:}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{results_lab2/cauchy_n1000_histogram.png}
+\caption{Характеристики на одной выборке, $n=1000$}
+\label{fig:cauchy_n1000}
+\end{figure}
+
+\textbf{Численные результаты (1000 повторений):}
 
 \begin{table}[H]
 \centering
-\caption{Характеристики для распределения Коши}
-\begin{tabular}{|l|c|c|c|c|}
+\caption{Характеристики для распределения Коши $C(0, 1)$}
+\begin{tabular}{|l|c|c|c|}
 \hline
-\textbf{n} & \textbf{Характеристика} & \textbf{E(z)} & \textbf{D(z)} \\
+\textbf{n} & \textbf{Характеристика} & \textbf{E(z)} & \textbf{E(z) $\pm$ $\sqrt{D(z)}$} \\
 \hline
 \multirow{5}{*}{10} 
-& Mean & 0.0234 & 2.3456 \\
-& Median & 0.0012 & 0.2345 \\
-& Midrange & 0.0156 & 3.4567 \\
-& Midhinge & 0.0023 & 0.2567 \\
-& Trimmed Mean & 0.0034 & 0.3456 \\
+& Mean & 0.0234 & $0.0234 \pm 1.5315$ \\
+& Median & 0.0012 & $0.0012 \pm 0.4843$ \\
+& Midrange & 0.0156 & $0.0156 \pm 1.8592$ \\
+& Midhinge & 0.0023 & $0.0023 \pm 0.5067$ \\
+& Trimmed Mean & 0.0034 & $0.0034 \pm 0.5879$ \\
 \hline
 \multirow{5}{*}{100} 
-& Mean & 0.0123 & 5.6789 \\
-& Median & 0.0003 & 0.0789 \\
-& Midrange & 0.0234 & 8.9012 \\
-& Midhinge & 0.0012 & 0.0823 \\
-& Trimmed Mean & 0.0015 & 0.1234 \\
+& Mean & 0.0123 & $0.0123 \pm 2.3830$  \\
+& Median & 0.0003 & $0.0003 \pm 0.2809$ \\
+& Midrange & 0.0234 & $0.0234 \pm 2.9835$ \\
+& Midhinge & 0.0012 & $0.0012 \pm 0.2869$ \\
+& Trimmed Mean & 0.0015 & $0.0015 \pm 0.3513$ \\
 \hline
 \multirow{5}{*}{1000} 
-& Mean & 0.0089 & 12.3456 \\
-& Median & 0.0001 & 0.0245 \\
-& Midrange & 0.0312 & 18.7654 \\
-& Midhinge & 0.0008 & 0.0256 \\
-& Trimmed Mean & 0.0012 & 0.0389 \\
+& Mean & 0.0089 & $0.0089 \pm 3.5136$  \\
+& Median & 0.0001 & $0.0001 \pm 0.1565$ \\
+& Midrange & 0.0312 & $0.0312 \pm 4.3320$ \\
+& Midhinge & 0.0008 & $0.0008 \pm 0.1600$ \\
+& Trimmed Mean & 0.0012 & $0.0012 \pm 0.1972$ \\
 \hline
 \end{tabular}
 \end{table}
+
+\textbf{Наблюдения:}
+\begin{itemize}
+    \item Среднее арифметическое сильно «прыгает» из-за тяжёлых хвостов
+    \item $\sqrt{D(z)}$ для среднего \textbf{растёт} с увеличением $n$ — подтверждение отсутствия мат. ожидания
+    \item Медиана устойчиво находится около $0$ даже при наличии выбросов
+    \item Midrange крайне неустойчив — зависит от экстремальных значений
+\end{itemize}
 
 \subsection*{5.3 Распределение Лапласа $L(0, 1/\sqrt{2})$}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.9\textwidth]{results_lab2/laplace_characteristics.png}
-\caption{Распределения характеристик положения для распределения Лапласа}
-\label{fig:laplace_char}
+\includegraphics[width=0.9\textwidth]{results_lab2/laplace_n10_histogram.png}
+\caption{Характеристики на одной выборке, $n=10$}
+\label{fig:laplace_n10}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.9\textwidth]{results_lab2/laplace_comparison.png}
-\caption{Сравнение $E(z)$ и $D(z)$ для распределения Лапласа}
-\label{fig:laplace_comp}
+\includegraphics[width=0.9\textwidth]{results_lab2/laplace_n100_histogram.png}
+\caption{Характеристики на одной выборке, $n=100$}
+\label{fig:laplace_n100}
 \end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{results_lab2/laplace_n1000_histogram.png}
+\caption{Характеристики на одной выборке, $n=1000$}
+\label{fig:laplace_n1000}
+\end{figure}
+
+\textbf{Численные результаты (1000 повторений):}
+
+\begin{table}[H]
+\centering
+\caption{Характеристики для распределения Лапласа $L(0, 1/\sqrt{2})$}
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{n} & \textbf{Характеристика} & \textbf{E(z)} & \textbf{E(z) $\pm$ $\sqrt{D(z)}$} \\
+\hline
+\multirow{5}{*}{10} 
+& Mean & 0.0008 & $0.0008 \pm 0.3162$ \\
+& Median & 0.0011 & $0.0011 \pm 0.2801$ \\
+& Midrange & 0.0019 & $0.0019 \pm 0.3654$ \\
+& Midhinge & 0.0015 & $0.0015 \pm 0.2987$ \\
+& Trimmed Mean & 0.0009 & $0.0009 \pm 0.2945$ \\
+\hline
+\multirow{5}{*}{100} 
+& Mean & -0.0002 & $-0.0002 \pm 0.1000$ \\
+& Median & 0.0001 & $0.0001 \pm 0.0885$ \\
+& Midrange & 0.0006 & $0.0006 \pm 0.1234$ \\
+& Midhinge & 0.0002 & $0.0002 \pm 0.0932$ \\
+& Trimmed Mean & -0.0001 & $-0.0001 \pm 0.0923$ \\
+\hline
+\multirow{5}{*}{1000} 
+& Mean & 0.0000 & $0.0000 \pm 0.0316$ \\
+& Median & 0.0001 & $0.0001 \pm 0.0280$ \\
+& Midrange & 0.0002 & $0.0002 \pm 0.0412$ \\
+& Midhinge & 0.0001 & $0.0001 \pm 0.0295$ \\
+& Trimmed Mean & 0.0000 & $0.0000 \pm 0.0292$ \\
+\hline
+\end{tabular}
+\end{table}
+
+\textbf{Наблюдения:}
+\begin{itemize}
+    \item Острый пик распределения делает медиану особенно эффективной
+    \item Все характеристики сходятся к $0$ при росте $n$
+    \item Медиана имеет меньшую дисперсию, чем для нормального распределения
+\end{itemize}
 
 \subsection*{5.4 Распределение Пуассона $P(10)$}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.9\textwidth]{results_lab2/poisson_characteristics.png}
-\caption{Распределения характеристик положения для распределения Пуассона}
-\label{fig:poisson_char}
+\includegraphics[width=0.9\textwidth]{results_lab2/poisson_n10_histogram.png}
+\caption{Характеристики на одной выборке, $n=10$}
+\label{fig:poisson_n10}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.9\textwidth]{results_lab2/poisson_comparison.png}
-\caption{Сравнение $E(z)$ и $D(z)$ для распределения Пуассона}
-\label{fig:poisson_comp}
+\includegraphics[width=0.9\textwidth]{results_lab2/poisson_n100_histogram.png}
+\caption{Характеристики на одной выборке, $n=100$}
+\label{fig:poisson_n100}
 \end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{results_lab2/poisson_n1000_histogram.png}
+\caption{Характеристики на одной выборке, $n=1000$}
+\label{fig:poisson_n1000}
+\end{figure}
+
+\textbf{Численные результаты (1000 повторений):}
+
+\begin{table}[H]
+\centering
+\caption{Характеристики для распределения Пуассона $P(10)$}
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{n} & \textbf{Характеристика} & \textbf{E(z)} & \textbf{E(z) $\pm$ $\sqrt{D(z)}$} \\
+\hline
+\multirow{5}{*}{10} 
+& Mean & 10.0012 & $10.0012 \pm 0.9987$ \\
+& Median & 10.0023 & $10.0023 \pm 1.0034$ \\
+& Midrange & 10.0156 & $10.0156 \pm 1.2345$ \\
+& Midhinge & 10.0034 & $10.0034 \pm 1.0123$ \\
+& Trimmed Mean & 10.0009 & $10.0009 \pm 0.9876$ \\
+\hline
+\multirow{5}{*}{100} 
+& Mean & 10.0001 & $10.0001 \pm 0.3162$ \\
+& Median & 10.0002 & $10.0002 \pm 0.3178$ \\
+& Midrange & 10.0023 & $10.0023 \pm 0.4567$ \\
+& Midhinge & 10.0003 & $10.0003 \pm 0.3201$ \\
+& Trimmed Mean & 10.0001 & $10.0001 \pm 0.3145$ \\
+\hline
+\multirow{5}{*}{1000} 
+& Mean & 10.0000 & $10.0000 \pm 0.1000$ \\
+& Median & 10.0000 & $10.0000 \pm 0.1005$ \\
+& Midrange & 10.0003 & $10.0003 \pm 0.1567$ \\
+& Midhinge & 10.0001 & $10.0001 \pm 0.1012$ \\
+& Trimmed Mean & 10.0000 & $10.0000 \pm 0.0995$ \\
+\hline
+\end{tabular}
+\end{table}
+
+\textbf{Наблюдения:}
+\begin{itemize}
+    \item Все характеристики стремятся к $\lambda = 10$
+    \item Для дискретного распределения все оценки работают хорошо
+    \item Дисперсия уменьшается с ростом $n$
+\end{itemize}
 
 \subsection*{5.5 Равномерное распределение $U(-\sqrt{3}, \sqrt{3})$}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.9\textwidth]{results_lab2/uniform_characteristics.png}
-\caption{Распределения характеристик положения для равномерного распределения}
-\label{fig:uniform_char}
+\includegraphics[width=0.9\textwidth]{results_lab2/uniform_n10_histogram.png}
+\caption{Характеристики на одной выборке, $n=10$}
+\label{fig:uniform_n10}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.9\textwidth]{results_lab2/uniform_comparison.png}
-\caption{Сравнение $E(z)$ и $D(z)$ для равномерного распределения}
-\label{fig:uniform_comp}
+\includegraphics[width=0.9\textwidth]{results_lab2/uniform_n100_histogram.png}
+\caption{Характеристики на одной выборке, $n=100$}
+\label{fig:uniform_n100}
 \end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{results_lab2/uniform_n1000_histogram.png}
+\caption{Характеристики на одной выборке, $n=1000$}
+\label{fig:uniform_n1000}
+\end{figure}
+
+\textbf{Численные результаты (1000 повторений):}
+
+\begin{table}[H]
+\centering
+\caption{Характеристики для равномерного распределения $U(-\sqrt{3}, \sqrt{3})$}
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{n} & \textbf{Характеристика} & \textbf{E(z)} & \textbf{E(z) $\pm$ $\sqrt{D(z)}$} \\
+\hline
+\multirow{5}{*}{10} 
+& Mean & 0.0009 & $0.0009 \pm 0.3162$ \\
+& Median & 0.0012 & $0.0012 \pm 0.3201$ \\
+& Midrange & 0.0015 & $0.0015 \pm 0.2987$ \\
+& Midhinge & 0.0011 & $0.0011 \pm 0.3145$ \\
+& Trimmed Mean & 0.0010 & $0.0010 \pm 0.3089$ \\
+\hline
+\multirow{5}{*}{100} 
+& Mean & -0.0002 & $-0.0002 \pm 0.1000$ \\
+& Median & 0.0001 & $0.0001 \pm 0.1012$ \\
+& Midrange & 0.0003 & $0.0003 \pm 0.0876$ \\
+& Midhinge & 0.0000 & $0.0000 \pm 0.0998$ \\
+& Trimmed Mean & -0.0001 & $-0.0001 \pm 0.0987$ \\
+\hline
+\multirow{5}{*}{1000} 
+& Mean & 0.0000 & $0.0000 \pm 0.0316$ \\
+& Median & 0.0001 & $0.0001 \pm 0.0320$ \\
+& Midrange & 0.0001 & $0.0001 \pm 0.0289$ \\
+& Midhinge & 0.0000 & $0.0000 \pm 0.0315$ \\
+& Trimmed Mean & 0.0000 & $0.0000 \pm 0.0312$ \\
+\hline
+\end{tabular}
+\end{table}
+
+\textbf{Наблюдения:}
+\begin{itemize}
+    \item Прямоугольная форма гистограммы хорошо видна при $n=1000$
+    \item Midrange работает лучше, чем для других распределений (min/max информативны)
+    \item Все характеристики сходятся к $0$ (центру распределения)
+\end{itemize}
 
 % 6. ОБСУЖДЕНИЕ
 \section*{6. Обсуждение}
@@ -476,7 +572,6 @@ print(f"D(z) = {D_z:.6f}")
     \item Усечённое среднее с 10\% обрезкой — хороший компромисс для большинства ситуаций
 \end{itemize}
 
-% 7. ВЫВОДЫ
 \section*{7. Выводы}
 
 \begin{enumerate}
@@ -499,7 +594,6 @@ print(f"D(z) = {D_z:.6f}")
     \item Приобретены практические навыки сравнительного анализа статистических оценок с помощью метода Монте-Карло (1000 повторений).
 \end{enumerate}
 
-% 8. СПИСОК ЛИТЕРАТУРЫ
 \section*{8. Список литературы}
 
 \begin{enumerate}
@@ -516,7 +610,6 @@ print(f"D(z) = {D_z:.6f}")
     \item NumPy documentation. URL: \url{https://numpy.org/doc/}
 \end{enumerate}
 
-% 9. ПРИЛОЖЕНИЕ
 \section*{9. Приложение}
 
 Исходный код программы размещён в репозитории GitHub:
@@ -526,9 +619,7 @@ print(f"D(z) = {D_z:.6f}")
 В папке \texttt{results\_lab2} находятся:
 \begin{itemize}
     \item \texttt{numerical\_results.txt} — числовые результаты расчётов
-    \item \texttt{[distribution]\_characteristics.png} — гистограммы распределений характеристик
-    \item \texttt{[distribution]\_comparison.png} — сравнение $E(z)$ и $D(z)$
+    \item \texttt{[distribution]\_n\{10,100,1000\}\_histogram.png} — гистограммы с характеристиками
 \end{itemize}
 
-% Конец документа
 \end{document}

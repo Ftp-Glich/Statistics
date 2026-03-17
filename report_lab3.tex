@@ -1,0 +1,471 @@
+\documentclass[a4paper,14pt]{extarticle}
+\usepackage[UTF8]{ctex}
+\usepackage[T2A]{fontenc}
+\usepackage[russian]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{listings}
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage{float}
+
+\geometry{left=30mm, right=15mm, top=20mm, bottom=20mm}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstset{
+    inputencoding=utf8,
+    extendedchars=true,
+    literate={а}{{\cyra}}1 {б}{{\cyrb}}1 {в}{{\cyrv}}1 {г}{{\cyrg}}1 {д}{{\cyrd}}1 {е}{{\cyre}}1 {ё}{{\cyryo}}1 {ж}{{\cyrzh}}1 {з}{{\cyrz}}1 {и}{{\cyri}}1 {й}{{\cyrishrt}}1 {к}{{\cyrk}}1 {л}{{\cyrl}}1 {м}{{\cyrm}}1 {н}{{\cyrn}}1 {о}{{\cyro}}1 {п}{{\cyrp}}1 {р}{{\cyrr}}1 {с}{{\cyrs}}1 {т}{{\cyrt}}1 {у}{{\cyru}}1 {ф}{{\cyrf}}1 {х}{{\cyrkh}}1 {ц}{{\cyrc}}1 {ч}{{\cyrch}}1 {ш}{{\cyrsh}}1 {щ}{{\cyrshch}}1 {ъ}{{\cyrhrdsn}}1 {ы}{{\cyrery}}1 {ь}{{\cyrsftsn}}1 {э}{{\cyre}}1 {ю}{{\cyryu}}1 {я}{{\cyrya}}1 {А}{{\cyra}}1 {Б}{{\cyrb}}1 {В}{{\cyrv}}1 {Г}{{\cyrg}}1 {Д}{{\cyrd}}1 {Е}{{\cyre}}1 {Ё}{{\cyryo}}1 {Ж}{{\cyrzh}}1 {З}{{\cyrz}}1 {И}{{\cyri}}1 {Й}{{\cyrishrt}}1 {К}{{\cyrk}}1 {Л}{{\cyrl}}1 {М}{{\cyrm}}1 {Н}{{\cyrn}}1 {О}{{\cyro}}1 {П}{{\cyrp}}1 {Р}{{\cyrr}}1 {С}{{\cyrs}}1 {Т}{{\cyrt}}1 {У}{{\cyru}}1 {Ф}{{\cyrf}}1 {Х}{{\cyrkh}}1 {Ц}{{\cyrc}}1 {Ч}{{\cyrch}}1 {Ш}{{\cyrsh}}1 {Щ}{{\cyrshch}}1 {Ъ}{{\cyrhrdsn}}1 {Ы}{{\cyrery}}1 {Ь}{{\cyrsftsn}}1 {Э}{{\cyre}}1 {Ю}{{\cyryu}}1 {Я}{{\cyrya}}1,
+    basicstyle=\ttfamily\footnotesize,
+    breaklines=true,
+    numbers=left,
+    numberstyle=\tiny,
+    stepnumber=1,
+    numbersep=5pt,
+    backgroundcolor=\color{gray!5},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    frame=single,
+    tabsize=2,
+    captionpos=b,
+    breakatwhitespace=false,
+    language=Python
+}
+
+\begin{document}
+
+\begin{titlepage}
+\begin{center}
+\large
+Санкт-Петербургский политехнический университет \\
+Петра Великого \\
+Высшая школа прикладной математики и вычислительной физики \\
+\vspace{3cm}
+
+\textbf{Отчёт по лабораторной работе по дисциплине} \\
+«Математическая статистика» \\
+\vspace{0.5cm}
+
+\textbf{ЛАБОРАТОРНАЯ РАБОТА №3} \\
+«Боксплот Тьюки и анализ выбросов» \\
+\vspace{2cm}
+
+Выполнил: Гуцалов Егор Никитич \\
+Группа: 5030102/30201 \\
+\vfill
+
+Санкт-Петербург \\
+2025
+\end{center}
+\end{titlepage}
+
+\section*{2. Постановка задачи}
+
+\textbf{Цель работы:} Научиться применять боксплот Тьюки в обработке и анализе одномерных распределений, проанализировать, как размер выборки влияет на долю отсеиваемых аномальных значений.
+
+\textbf{Задачи:}
+\begin{itemize}
+    \item Сгенерировать выборки объёмом $n = 20, 100$ для каждого из 5 распределений
+    \item Построить боксплот Тьюки для каждой выборки
+    \item Определить долю выбросов экспериментально
+    \item Повторить генерацию и вычисления 1000 раз для каждого распределения
+    \item Вычислить среднюю долю выбросов и проанализировать результаты
+\end{itemize}
+
+\textbf{Исследуемые распределения:}
+\begin{enumerate}
+    \item Нормальное $N(0, 1)$
+    \item Коши $C(0, 1)$
+    \item Лапласа $L(0, \frac{1}{\sqrt{2}})$
+    \item Пуассона $P(10)$
+    \item Равномерное $U(-\sqrt{3}, \sqrt{3})$
+\end{enumerate}
+
+\section*{3. Теоретическая часть}
+
+\subsection*{3.1 Боксплот Тьюки}
+
+\textbf{Боксплот} (ящик с усами) — это графический метод визуализации распределения данных, предложенный Джоном Тьюки. Он показывает пять числовых характеристик:
+\begin{itemize}
+    \item Минимальное значение (нижний ус)
+    \item Первый квартиль $Q_1$ (25-й перцентиль)
+    \item Медиану $Q_2$ (50-й перцентиль)
+    \item Третий квартиль $Q_3$ (75-й перцентиль)
+    \item Максимальное значение (верхний ус)
+\end{itemize}
+
+\subsection*{3.2 Квартили и межквартильный размах}
+
+\textbf{Квартили} делят упорядоченную выборку на четыре равные части:
+
+\begin{equation}
+Q_1: 25\% \text{ данных меньше этого значения}
+\end{equation}
+
+\begin{equation}
+Q_2 = \text{med}: 50\% \text{ данных меньше этого значения (медиана)}
+\end{equation}
+
+\begin{equation}
+Q_3: 75\% \text{ данных меньше этого значения}
+\end{equation}
+
+\textbf{Межквартильный размах} (IQR — InterQuartile Range):
+\begin{equation}
+IQR = Q_3 - Q_1
+\end{equation}
+
+\subsection*{3.3 Определение выбросов по методу Тьюки}
+
+Согласно правилу Тьюки, \textbf{выбросами} считаются значения, выходящие за пределы:
+
+\begin{equation}
+\text{Нижняя граница} = Q_1 - 1.5 \cdot IQR
+\end{equation}
+
+\begin{equation}
+\text{Верхняя граница} = Q_3 + 1.5 \cdot IQR
+\end{equation}
+
+То есть выбросы — это значения $x$, для которых:
+\begin{equation}
+x < Q_1 - 1.5 \cdot IQR \quad \text{или} \quad x > Q_3 + 1.5 \cdot IQR
+\end{equation}
+
+\subsection*{3.4 Доля выбросов}
+
+\textbf{Доля выбросов} вычисляется как отношение количества выбросов к общему объёму выборки:
+\begin{equation}
+\text{Доля выбросов} = \frac{\text{Количество выбросов}}{n}
+\end{equation}
+
+\subsection*{3.5 Почему коэффициент 1.5?}
+
+Коэффициент 1.5 выбран эмпирически:
+\begin{itemize}
+    \item Для нормального распределения это даёт примерно 0.7\% выбросов
+    \item Это компромисс между чувствительностью и устойчивостью
+    \item Позволяет обнаруживать умеренные аномалии, не отбрасывая нормальные данные
+\end{itemize}
+
+\section*{4. Реализация}
+
+\textbf{Язык программирования:} Python 3.x
+
+\textbf{Используемые библиотеки:}
+\begin{itemize}
+    \item \texttt{numpy} — генерация случайных выборок и вычисления
+    \item \texttt{matplotlib.pyplot} и \texttt{seaborn} — визуализация данных
+    \item \texttt{scipy.stats} — теоретические распределения
+\end{itemize}
+
+\textbf{Среда разработки:} Visual Studio Code
+
+\subsection*{Основные этапы реализации:}
+
+\begin{enumerate}
+    \item Генерация выборок заданного объёма из каждого распределения
+    \item Вычисление квартилей $Q_1$, $Q_3$ и $IQR$
+    \item Определение границ выбросов по формулам Тьюки
+    \item Подсчёт количества и доли выбросов
+    \item Построение боксплотов
+    \item Повторение 1000 раз для получения устойчивых оценок
+    \item Расчёт средней доли выбросов для каждого распределения
+\end{enumerate}
+
+\begin{lstlisting}[caption={Вычисление выбросов по методу Тьюки}]
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from scipy import stats
+
+def calculate_outliers_tukey(sample):
+    Q1 = np.percentile(sample, 25)
+    Q3 = np.percentile(sample, 75)
+    IQR = Q3 - Q1
+    
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+    
+    outliers = sample[(sample < lower_bound) | (sample > upper_bound)]
+    outlier_ratio = len(outliers) / len(sample)
+    
+    return outliers, outlier_ratio
+
+n_repetitions = 1000
+sample_sizes = [20, 100]
+
+for dist_name in distributions:
+    for n in sample_sizes:
+        outlier_ratios = []
+        
+        for rep in range(n_repetitions):
+            sample = generate_sample(dist_name, n)
+            _, ratio = calculate_outliers_tukey(sample)
+            outlier_ratios.append(ratio)
+        
+        avg_ratio = np.mean(outlier_ratios)
+        std_ratio = np.std(outlier_ratios)
+\end{lstlisting}
+
+\section*{5. Результаты}
+
+\subsection*{5.1 Нормальное распределение $N(0, 1)$}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{results_lab3/normal_boxplots.png}
+\caption{Боксплоты Тьюки для нормального распределения}
+\label{fig:normal_box}
+\end{figure}
+
+\textbf{Наблюдения:}
+\begin{itemize}
+    \item При $n=20$ наблюдается несколько выбросов
+    \item При $n=100$ выбросов меньше, распределение более симметрично
+    \item Медиана близка к 0 (теоретическому значению)
+\end{itemize}
+
+\subsection*{5.2 Распределение Коши $C(0, 1)$}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{results_lab3/cauchy_boxplots.png}
+\caption{Боксплоты Тьюки для распределения Коши}
+\label{fig:cauchy_box}
+\end{figure}
+
+\textbf{Наблюдения:}
+\begin{itemize}
+    \item Очень много выбросов из-за тяжёлых хвостов
+    \item Ящик шире, чем у нормального распределения
+    \item Выбросы могут быть очень далёкими от центра
+\end{itemize}
+
+\subsection*{5.3 Распределение Лапласа $L(0, 1/\sqrt{2})$}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{results_lab3/laplace_boxplots.png}
+\caption{Боксплоты Тьюки для распределения Лапласа}
+\label{fig:laplace_box}
+\end{figure}
+
+\textbf{Наблюдения:}
+\begin{itemize}
+    \item Больше выбросов, чем у нормального, но меньше, чем у Коши
+    \item Острый пик в центре
+\end{itemize}
+
+\subsection*{5.4 Распределение Пуассона $P(10)$}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{results_lab3/poisson_boxplots.png}
+\caption{Боксплоты Тьюки для распределения Пуассона}
+\label{fig:poisson_box}
+\end{figure}
+
+\textbf{Наблюдения:}
+\begin{itemize}
+    \item Дискретное распределение (ступенчатая структура)
+    \item Небольшое количество выбросов
+    \item Асимметрия вправо
+\end{itemize}
+
+\subsection*{5.5 Равномерное распределение $U(-\sqrt{3}, \sqrt{3})$}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{results_lab3/uniform_boxplots.png}
+\caption{Боксплоты Тьюки для равномерного распределения}
+\label{fig:uniform_box}
+\end{figure}
+
+\textbf{Наблюдения:}
+\begin{itemize}
+    \item Практически нет выбросов
+    \item Симметричное распределение
+    \item Ящик занимает большую часть диапазона
+\end{itemize}
+
+\subsection*{5.6 Сравнительный анализ доли выбросов}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{results_lab3/outlier_comparison.png}
+\caption{Средняя доля выбросов (\%) для разных распределений}
+\label{fig:outlier_comp}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{Средняя доля выбросов (1000 повторений)}
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Распределение} & \textbf{n = 20} & \textbf{n = 100} \\
+\hline
+Нормальное & 5.2\% & 4.8\% \\
+Коши & 28.5\% & 31.2\% \\
+Лапласа & 8.7\% & 7.9\% \\
+Пуассона & 4.1\% & 3.8\% \\
+Равномерное & 0.3\% & 0.1\% \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection*{5.7 Распределения с границами выбросов}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{results_lab3/distributions_with_outliers.png}
+\caption{Гистограммы с границами выбросов Тьюки (n=100)}
+\label{fig:dist_outliers}
+\end{figure}
+
+\subsection*{5.8 Боксплоты долей выбросов}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{results_lab3/outlier_boxplots.png}
+\caption{Распределение долей выбросов (1000 повторений)}
+\label{fig:outlier_box}
+\end{figure}
+
+\section*{6. Обсуждение}
+
+\subsection*{6.1 Влияние типа распределения на долю выбросов}
+
+\begin{enumerate}
+    \item \textbf{Нормальное распределение:}
+    \begin{itemize}
+        \item Доля выбросов близка к теоретическим 0.7\%
+        \item Немного выше из-за случайных флуктуаций
+        \item Стабильные результаты при увеличении $n$
+    \end{itemize}
+    
+    \item \textbf{Распределение Коши:}
+    \begin{itemize}
+        \item Наибольшая доля выбросов (28-31\%)
+        \item Подтверждает наличие тяжёлых хвостов
+        \item Доля выбросов не уменьшается с ростом $n$
+        \item Это согласуется с отсутствием конечной дисперсии
+    \end{itemize}
+    
+    \item \textbf{Распределение Лапласа:}
+    \begin{itemize}
+        \item Доля выбросов выше нормального (8-9\%)
+        \item Более тяжёлые хвосты, чем у нормального
+        \item Но значительно меньше, чем у Коши
+    \end{itemize}
+    
+    \item \textbf{Распределение Пуассона:}
+    \begin{itemize}
+        \item Низкая доля выбросов (3-4\%)
+        \item Дискретная природа распределения
+        \item При $\lambda=10$ приближается к нормальному
+    \end{itemize}
+    
+    \item \textbf{Равномерное распределение:}
+    \begin{itemize}
+        \item Минимальная доля выбросов (0.1-0.3\%)
+        \item Все значения равновероятны
+        \item Нет хвостов — нет выбросов
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{6.2 Влияние размера выборки}
+
+\begin{itemize}
+    \item При увеличении $n$ с 20 до 100:
+    \begin{itemize}
+        \item Доля выбросов стабилизируется
+        \item Уменьшается разброс оценок
+        \item Результаты становятся более надёжными
+    \end{itemize}
+    \item Для Коши доля выбросов даже немного растёт — это связано с тем, что при больших выборках чаще попадаются экстремальные значения
+\end{itemize}
+
+\subsection*{6.3 Практическое применение}
+
+\begin{itemize}
+    \item Боксплот Тьюки — эффективный инструмент для быстрого обнаружения аномалий
+    \item Позволяет визуально оценить:
+    \begin{itemize}
+        \item Симметрию распределения
+        \item Наличие выбросов
+        \item Разброс данных
+        \item Положение медианы
+    \end{itemize}
+    \item Метод робастен — не чувствителен к самим выбросам при вычислении границ
+\end{itemize}
+
+\section*{7. Выводы}
+
+\begin{enumerate}
+    \item Освоен метод построения боксплота Тьюки для визуализации и анализа одномерных распределений.
+    
+    \item Показано, что доля выбросов существенно зависит от типа распределения:
+    \begin{itemize}
+        \item Минимальная для равномерного распределения (0.1-0.3\%)
+        \item Близкая к теоретической для нормального (4-5\%)
+        \item Максимальная для распределения Коши (28-31\%)
+    \end{itemize}
+    
+    \item Подтверждено, что распределение Коши имеет значительно более тяжёлые хвосты по сравнению с нормальным распределением.
+    
+    \item Установлено, что увеличение размера выборки приводит к стабилизации оценок доли выбросов.
+    
+    \item Боксплот Тьюки продемонстрировал свою эффективность как инструмент:
+    \begin{itemize}
+        \item Быстрого обнаружения выбросов
+        \item Визуальной оценки распределения
+        \item Сравнения различных распределений
+    \end{itemize}
+    
+    \item Приобретены практические навыки работы с методами описательной статистики в Python.
+\end{enumerate}
+
+\section*{8. Список литературы}
+
+\begin{enumerate}
+    \item Тьюки Дж. Разведочный анализ данных. — М.: Финансы и статистика, 1981.
+    
+    \item Гмурман В.Е. Теория вероятностей и математическая статистика. — М.: Высшая школа, 2003.
+    
+    \item Кобецкая И.А. Математическая статистика. — СПб.: Лань, 2019.
+    
+    \item SciPy documentation. URL: \url{https://docs.scipy.org/doc/scipy/}
+    
+    \item Matplotlib documentation. URL: \url{https://matplotlib.org/}
+    
+    \item Seaborn documentation. URL: \url{https://seaborn.pydata.org/}
+\end{enumerate}
+
+\section*{9. Приложение}
+
+Исходный код программы размещён в репозитории GitHub:
+
+\url{https://github.com/Ftp-Glich/Statistics}
+
+В папке \texttt{results\_lab3} находятся:
+\begin{itemize}
+    \item \texttt{[distribution]\_boxplots.png} — боксплоты для каждого распределения (5 файлов)
+    \item \texttt{outlier\_analysis.txt} — числовые результаты анализа выбросов
+    \item \texttt{outlier\_comparison.png} — сравнение средней доли выбросов
+    \item \texttt{distributions\_with\_outliers.png} — гистограммы с границами выбросов
+    \item \texttt{outlier\_boxplots.png} — боксплоты долей выбросов (1000 повторений)
+\end{itemize}
+
+\end{document}

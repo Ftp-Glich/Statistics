@@ -1,0 +1,453 @@
+\documentclass[a4paper,14pt]{extarticle}
+\usepackage[UTF8]{ctex}
+\usepackage[T2A]{fontenc}
+\usepackage[russian]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{listings}
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage{float}
+
+\geometry{left=30mm, right=15mm, top=20mm, bottom=20mm}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstset{
+    inputencoding=utf8,
+    extendedchars=true,
+    literate={а}{{\cyra}}1 {б}{{\cyrb}}1 {в}{{\cyrv}}1 {г}{{\cyrg}}1 {д}{{\cyrd}}1 {е}{{\cyre}}1 {ё}{{\cyryo}}1 {ж}{{\cyrzh}}1 {з}{{\cyrz}}1 {и}{{\cyri}}1 {й}{{\cyrishrt}}1 {к}{{\cyrk}}1 {л}{{\cyrl}}1 {м}{{\cyrm}}1 {н}{{\cyrn}}1 {о}{{\cyro}}1 {п}{{\cyrp}}1 {р}{{\cyrr}}1 {с}{{\cyrs}}1 {т}{{\cyrt}}1 {у}{{\cyru}}1 {ф}{{\cyrf}}1 {х}{{\cyrkh}}1 {ц}{{\cyrc}}1 {ч}{{\cyrch}}1 {ш}{{\cyrsh}}1 {щ}{{\cyrshch}}1 {ъ}{{\cyrhrdsn}}1 {ы}{{\cyrery}}1 {ь}{{\cyrsftsn}}1 {э}{{\cyre}}1 {ю}{{\cyryu}}1 {я}{{\cyrya}}1 {А}{{\cyra}}1 {Б}{{\cyrb}}1 {В}{{\cyrv}}1 {Г}{{\cyrg}}1 {Д}{{\cyrd}}1 {Е}{{\cyre}}1 {Ё}{{\cyryo}}1 {Ж}{{\cyrzh}}1 {З}{{\cyrz}}1 {И}{{\cyri}}1 {Й}{{\cyrishrt}}1 {К}{{\cyrk}}1 {Л}{{\cyrl}}1 {М}{{\cyrm}}1 {Н}{{\cyrn}}1 {О}{{\cyro}}1 {П}{{\cyrp}}1 {Р}{{\cyrr}}1 {С}{{\cyrs}}1 {Т}{{\cyrt}}1 {У}{{\cyru}}1 {Ф}{{\cyrf}}1 {Х}{{\cyrkh}}1 {Ц}{{\cyrc}}1 {Ч}{{\cyrch}}1 {Ш}{{\cyrsh}}1 {Щ}{{\cyrshch}}1 {Ъ}{{\cyrhrdsn}}1 {Ы}{{\cyrery}}1 {Ь}{{\cyrsftsn}}1 {Э}{{\cyre}}1 {Ю}{{\cyryu}}1 {Я}{{\cyrya}}1,
+    basicstyle=\ttfamily\footnotesize,
+    breaklines=true,
+    numbers=left,
+    numberstyle=\tiny,
+    stepnumber=1,
+    numbersep=5pt,
+    backgroundcolor=\color{gray!5},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    frame=single,
+    tabsize=2,
+    captionpos=b,
+    breakatwhitespace=false,
+    language=Python
+}
+
+\begin{document}
+
+\begin{titlepage}
+\begin{center}
+\large
+Санкт-Петербургский политехнический университет \\
+Петра Великого \\
+Высшая школа прикладной математики и вычислительной физики \\
+\vspace{3cm}
+
+\textbf{Отчёт по лабораторной работе по дисциплине} \\
+«Математическая статистика» \\
+\vspace{0.5cm}
+
+\textbf{ЛАБОРАТОРНАЯ РАБОТА №4} \\
+«Эмпирическая функция распределения и ядерные оценки плотности» \\
+\vspace{2cm}
+
+Выполнил: Гуцалов Егор Никитич \\
+Группа: 5030102/30201 \\
+\vfill
+
+Санкт-Петербург \\
+2025
+\end{center}
+\end{titlepage}
+
+\section*{2. Постановка задачи}
+
+\textbf{Цель работы:} Изучить методы построения эмпирической функции распределения и ядерных оценок плотности, проанализировать влияние размера выборки на точность оценок, сравнить ядерные оценки с гистограммами.
+
+\textbf{Задачи:}
+\begin{itemize}
+    \item Сгенерировать выборки объёмом $n = 20, 60, 100$ для каждого из 5 распределений
+    \item Построить эмпирическую функцию распределения (ЭФР) и теоретическую функцию распределения
+    \item Построить ядерную оценку плотности (с гауссовым ядром) и теоретическую плотность
+    \item Выполнить построение на отрезке $[-4, 4]$ для непрерывных распределений и на отрезке $[6, 14]$ для распределения Пуассона
+    \item Проанализировать, как мощность выборки влияет на приближение эмпирической функции к истинной
+    \item Сравнить два способа оценки плотности: ядерные оценки и гистограммы
+\end{itemize}
+
+\textbf{Исследуемые распределения:}
+\begin{enumerate}
+    \item Нормальное $N(0, 1)$
+    \item Коши $C(0, 1)$
+    \item Лапласа $L(0, \frac{1}{\sqrt{2}})$
+    \item Пуассона $P(10)$
+    \item Равномерное $U(-\sqrt{3}, \sqrt{3})$
+\end{enumerate}
+
+\section*{3. Теоретическая часть}
+
+\subsection*{3.1 Эмпирическая функция распределения}
+
+\textbf{Эмпирическая функция распределения} (ЭФР) — это ступенчатая функция, определяемая как доля элементов выборки, не превосходящих заданного значения $x$:
+
+\begin{equation}
+\hat{F}_n(x) = \frac{1}{n} \sum_{i=1}^{n} I(x_i \leq x)
+\end{equation}
+
+где $I(\cdot)$ — индикаторная функция, равная 1, если условие выполняется, и 0 иначе.
+
+\textbf{Свойства ЭФР:}
+\begin{itemize}
+    \item Неубывающая ступенчатая функция
+    \item Принимает значения от 0 до 1
+    \item Делает скачок величины $1/n$ в каждой точке выборки
+    \item Состоятельная оценка истинной функции распределения
+\end{itemize}
+
+\textbf{Теорема Гливенко-Кантелли:}
+\begin{equation}
+\sup_{x} |\hat{F}_n(x) - F(x)| \xrightarrow[n \to \infty]{a.s.} 0
+\end{equation}
+
+Эта теорема утверждает, что эмпирическая функция распределения равномерно сходится к истинной функции распределения почти наверное.
+
+\subsection*{3.2 Ядерная оценка плотности}
+
+\textbf{Ядерная оценка плотности} (Kernel Density Estimation, KDE) — это непараметрический метод оценки плотности вероятности, основанный на сглаживании данных.
+
+В отличие от гистограммы, которая является ступенчатой функцией, ядерная оценка даёт \textbf{непрерывную гладкую оценку} плотности.
+
+\textbf{Формула ядерной оценки:}
+\begin{equation}
+\hat{f}_h(x) = \frac{1}{n} \sum_{i=1}^{n} K_h(x - x_i) = \frac{1}{nh} \sum_{i=1}^{n} K\left(\frac{x - x_i}{h}\right)
+\end{equation}
+
+где:
+\begin{itemize}
+    \item $K(\cdot)$ — ядерная функция (в данной работе используется гауссово ядро)
+    \item $h > 0$ — параметр сглаживания (bandwidth)
+\end{itemize}
+
+\textbf{Гауссово ядро:}
+\begin{equation}
+K(u) = \frac{1}{\sqrt{2\pi}} e^{-u^2/2}
+\end{equation}
+
+\textbf{Выбор параметра сглаживания $h$:}
+\begin{itemize}
+    \item Малое $h$ — оценка следует за данными, может быть шумной (переобучение)
+    \item Большое $h$ — оценка слишком гладкая, может потерять детали (недообучение)
+    \item В работе используется автоматический выбор $h$ по правилу Скотта
+\end{itemize}
+
+\subsection*{3.3 Сравнение гистограммы и KDE}
+
+\begin{table}[H]
+\centering
+\caption{Сравнение гистограммы и ядерной оценки плотности}
+\begin{tabular}{|l|p{5cm}|p{5cm}|}
+\hline
+\textbf{Характеристика} & \textbf{Гистограмма} & \textbf{KDE} \\
+\hline
+Гладкость & Ступенчатая функция & Непрерывная гладкая \\
+\hline
+Зависимость от параметров & Выбор границ и ширины бинов & Выбор параметра сглаживания $h$ \\
+\hline
+Визуальное качество & Грубая, дискретная & Плавная, естественная \\
+\hline
+Вычислительная сложность & Низкая & Выше \\
+\hline
+Интерпретация & Простая & Требует понимания ядер \\
+\hline
+\end{tabular}
+\end{table}
+
+\section*{4. Реализация}
+
+\textbf{Язык программирования:} Python 3.x
+
+\textbf{Используемые библиотеки:}
+\begin{itemize}
+    \item \texttt{numpy} — генерация случайных выборок и вычисления
+    \item \texttt{matplotlib.pyplot} и \texttt{seaborn} — визуализация данных
+    \item \texttt{scipy.stats} — теоретические распределения и гауссово ядро
+\end{itemize}
+
+\textbf{Среда разработки:} Visual Studio Code
+
+\subsection*{Основные этапы реализации:}
+
+\begin{enumerate}
+    \item Генерация выборок объёмом $n = 20, 60, 100$ из каждого распределения
+    \item Построение эмпирической функции распределения (ступенчатый график)
+    \item Наложение теоретической функции распределения
+    \item Построение гистограммы выборки
+    \item Вычисление ядерной оценки плотности с гауссовым ядром
+    \item Наложение теоретической плотности
+    \item Сохранение графиков для всех распределений и размеров выборок
+\end{enumerate}
+
+\begin{lstlisting}[caption={Построение ЭФР и ядерной оценки плотности}]
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import stats
+from scipy.stats import gaussian_kde
+
+n = 100
+sample = np.random.normal(0, 1, n)
+
+x_ecdf = np.linspace(-4, 4, 1000)
+y_ecdf = np.array([np.mean(sample <= xi) 
+                   for xi in x_ecdf])
+
+kde = gaussian_kde(sample)
+y_kde = kde(x_ecdf)
+
+y_theoretical_pdf = stats.norm.pdf(
+    x_ecdf, loc=0, scale=1)
+
+plt.figure(figsize=(10, 6))
+plt.hist(sample, bins='sqrt', density=True, 
+         alpha=0.3, label='Histogram')
+plt.plot(x_ecdf, y_kde, 'b-', linewidth=2, 
+         label='Kernel Density')
+plt.plot(x_ecdf, y_theoretical_pdf, 'r--', 
+         linewidth=2, label='Theoretical')
+plt.legend()
+plt.show()
+\end{lstlisting}
+
+\section*{5. Результаты}
+
+\subsection*{5.1 Нормальное распределение $N(0, 1)$}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{results_lab4/normal_ecdf.png}
+\caption{Эмпирическая функция распределения для нормального закона}
+\label{fig:normal_ecdf}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{results_lab4/normal_kde.png}
+\caption{Ядерная оценка плотности для нормального закона}
+\label{fig:normal_kde}
+\end{figure}
+
+\textbf{Наблюдения:}
+\begin{itemize}
+    \item При $n=20$ ЭФР заметно отклоняется от теоретической кривой
+    \item При $n=100$ наблюдается хорошее совпадение ЭФР с теорией
+    \item KDE плавно приближается к теоретической плотности при росте $n$
+    \item Гистограмма при малых $n$ имеет разреженные бины
+\end{itemize}
+
+\subsection*{5.2 Распределение Коши $C(0, 1)$}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{results_lab4/cauchy_ecdf.png}
+\caption{Эмпирическая функция распределения для закона Коши}
+\label{fig:cauchy_ecdf}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{results_lab4/cauchy_kde.png}
+\caption{Ядерная оценка плотности для закона Коши}
+\label{fig:cauchy_kde}
+\end{figure}
+
+\textbf{Наблюдения:}
+\begin{itemize}
+    \item Из-за тяжёлых хвостов наблюдаются значительные флуктуации
+    \item KDE сглаживает выбросы, но может терять детали распределения
+    \item Сходимость медленнее, чем для нормального распределения
+\end{itemize}
+
+\subsection*{5.3 Распределение Лапласа $L(0, 1/\sqrt{2})$}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{results_lab4/laplace_ecdf.png}
+\caption{Эмпирическая функция распределения для закона Лапласа}
+\label{fig:laplace_ecdf}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{results_lab4/laplace_kde.png}
+\caption{Ядерная оценка плотности для закона Лапласа}
+\label{fig:laplace_kde}
+\end{figure}
+
+\textbf{Наблюдения:}
+\begin{itemize}
+    \item Острый пик в центре хорошо виден на KDE
+    \item ЭФР демонстрирует более быстрый рост в центре
+    \item При $n=100$ оценка плотности близка к теоретической
+\end{itemize}
+
+\subsection*{5.4 Распределение Пуассона $P(10)$}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{results_lab4/poisson_ecdf.png}
+\caption{Эмпирическая функция распределения для закона Пуассона}
+\label{fig:poisson_ecdf}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{results_lab4/poisson_kde.png}
+\caption{Ядерная оценка плотности для закона Пуассона}
+\label{fig:poisson_kde}
+\end{figure}
+
+\textbf{Наблюдения:}
+\begin{itemize}
+    \item Дискретная природа распределения видна на ступенчатой ЭФР
+    \item KDE применяет сглаживание к дискретным данным
+    \item При $\lambda=10$ распределение приближается к нормальному
+\end{itemize}
+
+\subsection*{5.5 Равномерное распределение $U(-\sqrt{3}, \sqrt{3})$}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{results_lab4/uniform_ecdf.png}
+\caption{Эмпирическая функция распределения для равномерного закона}
+\label{fig:uniform_ecdf}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{results_lab4/uniform_kde.png}
+\caption{Ядерная оценка плотности для равномерного закона}
+\label{fig:uniform_kde}
+\end{figure}
+
+\textbf{Наблюдения:}
+\begin{itemize}
+    \item Линейный рост ЭФР характерен для равномерного распределения
+    \item KDE размывает резкие границы из-за сглаживания
+    \item При больших $n$ оценка приближается к прямоугольной форме
+\end{itemize}
+
+\subsection*{5.6 Сравнение всех распределений}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{results_lab4/all_distributions_comparison.png}
+\caption{Сравнение ЭФР и KDE для всех распределений ($n=100$)}
+\label{fig:all_comparison}
+\end{figure}
+
+\section*{6. Обсуждение}
+
+\subsection*{6.1 Влияние размера выборки}
+
+\begin{enumerate}
+    \item \textbf{Эмпирическая функция распределения:}
+    \begin{itemize}
+        \item При $n=20$: заметные случайные отклонения от теоретической кривой
+        \item При $n=60$: улучшение сходимости, уменьшение флуктуаций
+        \item При $n=100$: хорошее согласие с теорией, подтверждение теоремы Гливенко-Кантелли
+    \end{itemize}
+    
+    \item \textbf{Ядерная оценка плотности:}
+    \begin{itemize}
+        \item При малых $n$: оценка может быть шумной или слишком сглаженной
+        \item При увеличении $n$: KDE всё лучше воспроизводит форму теоретической плотности
+        \item Автоматический выбор параметра сглаживания работает удовлетворительно
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{6.2 Сравнение методов оценки плотности}
+
+\textbf{Преимущества KDE перед гистограммой:}
+\begin{itemize}
+    \item Непрерывность и гладкость оценки
+    \item Отсутствие зависимости от выбора границ бинов
+    \item Лучшее визуальное восприятие формы распределения
+    \item Более эффективное использование данных
+\end{itemize}
+
+\textbf{Недостатки KDE:}
+\begin{itemize}
+    \item Вычислительная сложность выше
+    \item Требует выбора параметра сглаживания
+    \item Может размывать резкие границы (для равномерного распределения)
+    \item Менее интуитивна для интерпретации
+\end{itemize}
+
+\subsection*{6.3 Особенности различных распределений}
+
+\begin{enumerate}
+    \item \textbf{Нормальное:} быстрая сходимость, обе оценки работают хорошо
+    \item \textbf{Коши:} медленная сходимость из-за тяжёлых хвостов, KDE сглаживает выбросы
+    \item \textbf{Лапласа:} острый пик хорошо воспроизводится при достаточном $n$
+    \item \textbf{Пуассона:} дискретная природа требует осторожности при интерпретации KDE
+    \item \textbf{Равномерное:} KDE размывает границы, гистограмма лучше показывает прямоугольную форму
+\end{enumerate}
+
+\section*{7. Выводы}
+
+\begin{enumerate}
+    \item Освоены методы построения эмпирической функции распределения и ядерных оценок плотности для анализа одномерных данных.
+    
+    \item Подтверждена теорема Гливенко-Кантелли: с ростом объёма выборки эмпирическая функция распределения равномерно сходится к истинной функции распределения.
+    
+    \item Показано, что ядерная оценка плотности даёт более гладкую и визуально приятную оценку по сравнению с гистограммой, не зависящую от выбора границ бинов.
+    
+    \item Установлено, что скорость сходимости оценок зависит от типа распределения:
+    \begin{itemize}
+        \item Быстрая сходимость для нормального и равномерного распределений
+        \item Медленная сходимость для распределения Коши из-за тяжёлых хвостов
+    \end{itemize}
+    
+    \item Выявлено, что для дискретных распределений (Пуассона) применение KDE требует осторожности в интерпретации, так как метод предполагает непрерывность.
+    
+    \item Приобретены практические навыки сравнительного анализа различных методов оценки плотности вероятности в Python.
+\end{enumerate}
+
+\section*{8. Список литературы}
+
+\begin{enumerate}
+    \item Гмурман В.Е. Теория вероятностей и математическая статистика. — М.: Высшая школа, 2003.
+    
+    \item Кобецкая И.А. Математическая статистика: Учебное пособие. — СПб.: Лань, 2019.
+    
+    \item Silverman B.W. Density Estimation for Statistics and Data Analysis. — Chapman and Hall, 1986.
+    
+    \item SciPy documentation. URL: \url{https://docs.scipy.org/doc/scipy/}
+    
+    \item Matplotlib documentation. URL: \url{https://matplotlib.org/}
+    
+    \item Seaborn documentation. URL: \url{https://seaborn.pydata.org/}
+\end{enumerate}
+
+\section*{9. Приложение}
+
+Исходный код программы размещён в репозитории GitHub:
+
+\url{https://github.com/Ftp-Glich/Statistics}
+
+В папке \texttt{results\_lab4} находятся:
+\begin{itemize}
+    \item \texttt{[distribution]\_ecdf.png} — эмпирические функции распределения (5 файлов)
+    \item \texttt{[distribution]\_kde.png} — ядерные оценки плотности (5 файлов)
+    \item \texttt{all\_distributions\_comparison.png} — сравнительный график для всех распределений
+\end{itemize}
+
+\end{document}

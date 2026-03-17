@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import pandas as pd
 from scipy import stats
 import os
 import warnings
@@ -9,7 +8,6 @@ warnings.filterwarnings('ignore')
 os.makedirs('results_lab2', exist_ok=True)
 
 sample_sizes = [10, 100, 1000]
-n_repetitions = 1000
 np.random.seed(42)
 
 distributions = {
@@ -38,135 +36,73 @@ def calculate_trimmed_mean(sample, proportion=0.1):
     return stats.trim_mean(sample, proportion)
 
 characteristics = {
-    'Mean': calculate_mean,
-    'Median': calculate_median,
-    'Midrange': calculate_midrange,
-    'Midhinge': calculate_midhinge,
-    'Trimmed_Mean': calculate_trimmed_mean
+    'Mean': (calculate_mean, 'blue', 'solid'),
+    'Median': (calculate_median, 'red', 'dashed'),
+    'Midrange': (calculate_midrange, 'green', 'dashdot'),
+    'Midhinge': (calculate_midhinge, 'orange', 'dotted'),
+    'Trimmed_Mean': (calculate_trimmed_mean, 'purple', 'solid')
 }
-
-results = {}
 
 for dist_name, dist_func in distributions.items():
     print(f"Processing {dist_name}...")
-    results[dist_name] = {}
     
     for n in sample_sizes:
-        results[dist_name][n] = {}
+        sample = dist_func(n)
         
-        for char_name, char_func in characteristics.items():
-            values = []
-            
-            for _ in range(n_repetitions):
+        if dist_name == 'Cauchy':
+            mask = (sample > -10) & (sample < 10)
+            if np.sum(mask) < n * 0.5:
                 sample = dist_func(n)
-                
-                if dist_name == 'Cauchy':
-                    sample = sample[(sample > -100) & (sample < 100)]
-                    if len(sample) < n * 0.5:
-                        sample = dist_func(n)
-                
-                try:
-                    value = char_func(sample)
-                    if np.isfinite(value):
-                        values.append(value)
-                except:
-                    pass
-            
-            if len(values) > 0:
-                E_z = np.mean(values)
-                D_z = np.var(values)
-                
-                results[dist_name][n][char_name] = {
-                    'E': E_z,
-                    'D': D_z,
-                    'values': values
-                }
+            else:
+                sample = sample[mask]
+        
+        fig, ax = plt.subplots(1, 1, figsize=(10, 6))
+        
+        if dist_name == 'Poisson':
+            bins = np.arange(min(sample), max(sample) + 2) - 0.5
+            ax.hist(sample, bins=bins, density=True, alpha=0.6, 
+                    color='skyblue', edgecolor='black', label='Histogram')
+            x = np.arange(0, 21)
+            pmf = stats.poisson.pmf(x, mu=10)
+            ax.plot(x, pmf, 'k-', linewidth=2, label='Theoretical')
+        else:
+            ax.hist(sample, bins='sqrt', density=True, alpha=0.6, 
+                    color='skyblue', edgecolor='black', label='Histogram')
+            x = np.linspace(-5, 5, 1000) if dist_name != 'Uniform' else np.linspace(-3, 3, 1000)
+            if dist_name == 'Normal':
+                pdf = stats.norm.pdf(x, loc=0, scale=1)
+            elif dist_name == 'Cauchy':
+                pdf = stats.cauchy.pdf(x, loc=0, scale=1)
+            elif dist_name == 'Laplace':
+                pdf = stats.laplace.pdf(x, loc=0, scale=1/np.sqrt(2))
+            elif dist_name == 'Uniform':
+                pdf = stats.uniform.pdf(x, loc=-np.sqrt(3), scale=2*np.sqrt(3))
+            ax.plot(x, pdf, 'k-', linewidth=2, label='Theoretical')
+        
+        for char_name, (char_func, color, linestyle) in characteristics.items():
+            try:
+                value = char_func(sample)
+                if np.isfinite(value):
+                    ax.axvline(value, color=color, linestyle=linestyle, 
+                              linewidth=2, label=char_name)
+            except:
+                pass
+        
+        ax.set_title(f'{dist_name} Distribution, n={n}')
+        ax.set_xlabel('x')
+        ax.set_ylabel('Density')
+        ax.legend(fontsize=8, loc='best')
+        ax.grid(True, alpha=0.3)
+        
+        if dist_name == 'Cauchy':
+            ax.set_xlim(-10, 10)
+        elif dist_name == 'Uniform':
+            ax.set_xlim(-3, 3)
+        
+        plt.tight_layout()
+        plt.savefig(f'results_lab2/{dist_name.lower()}_n{n}_histogram.png', dpi=300, bbox_inches='tight')
+        plt.close()
+    
+    print(f"  Saved 3 histograms for {dist_name}")
 
-with open('results_lab2/numerical_results.txt', 'w') as f:
-    f.write("LABORATORY WORK #2 - RESULTS\n")
-    f.write("=" * 80 + "\n\n")
-    
-    for dist_name in distributions.keys():
-        f.write(f"\n{dist_name.upper()}\n")
-        f.write("-" * 80 + "\n")
-        
-        for n in sample_sizes:
-            f.write(f"\nSample size n = {n}\n")
-            f.write(f"{'Characteristic':<15} {'E(z)':<20} {'D(z)':<20}\n")
-            f.write("-" * 55 + "\n")
-            
-            for char_name in characteristics.keys():
-                if char_name in results[dist_name][n]:
-                    E = results[dist_name][n][char_name]['E']
-                    D = results[dist_name][n][char_name]['D']
-                    f.write(f"{char_name:<15} {E:<20.6f} {D:<20.6f}\n")
-        
-        f.write("\n" + "=" * 80 + "\n")
-
-for dist_name in distributions.keys():
-    fig, axes = plt.subplots(len(sample_sizes), len(characteristics), 
-                             figsize=(15, 3*len(sample_sizes)))
-    
-    if len(sample_sizes) == 1:
-        axes = axes.reshape(1, -1)
-    
-    for i, n in enumerate(sample_sizes):
-        for j, char_name in enumerate(characteristics.keys()):
-            if char_name in results[dist_name][n]:
-                values = results[dist_name][n][char_name]['values']
-                
-                if len(sample_sizes) > 1 and len(characteristics) > 1:
-                    ax = axes[i, j]
-                elif len(sample_sizes) == 1 and len(characteristics) > 1:
-                    ax = axes[j]
-                else:
-                    ax = axes[i, j]
-                
-                ax.hist(values, bins=30, density=True, alpha=0.6, color='skyblue', edgecolor='black')
-                ax.axvline(results[dist_name][n][char_name]['E'], color='red', linestyle='--', linewidth=2)
-                ax.set_title(f'{char_name}\nn={n}, E={results[dist_name][n][char_name]["E"]:.3f}')
-                ax.grid(True, alpha=0.3)
-    
-    plt.suptitle(f'{dist_name} Distribution - Characteristics', fontsize=14, fontweight='bold')
-    plt.tight_layout()
-    plt.savefig(f'results_lab2/{dist_name.lower()}_characteristics.png', dpi=300, bbox_inches='tight')
-    plt.close()
-
-for dist_name in distributions.keys():
-    fig, axes = plt.subplots(1, len(sample_sizes), figsize=(15, 4))
-    
-    if len(sample_sizes) == 1:
-        axes = [axes]
-    
-    for idx, n in enumerate(sample_sizes):
-        char_names = list(characteristics.keys())
-        E_values = []
-        D_values = []
-        
-        for char_name in char_names:
-            if char_name in results[dist_name][n]:
-                E_values.append(results[dist_name][n][char_name]['E'])
-                D_values.append(results[dist_name][n][char_name]['D'])
-        
-        x = np.arange(len(E_values))
-        width = 0.35
-        
-        axes[idx].bar(x - width/2, E_values, width, label='E(z)', alpha=0.7)
-        axes[idx].bar(x + width/2, D_values, width, label='D(z)', alpha=0.7)
-        axes[idx].set_xlabel('Characteristics')
-        axes[idx].set_title(f'n = {n}')
-        axes[idx].set_xticks(x)
-        axes[idx].set_xticklabels([cn.replace('_', '\n') for cn in char_names], rotation=0, ha='center', fontsize=8)
-        axes[idx].legend()
-        axes[idx].grid(True, alpha=0.3, axis='y')
-    
-    plt.suptitle(f'{dist_name} - Comparison of Characteristics', fontsize=14, fontweight='bold')
-    plt.tight_layout()
-    plt.savefig(f'results_lab2/{dist_name.lower()}_comparison.png', dpi=300, bbox_inches='tight')
-    plt.close()
-
-print("\nAll results saved to 'results_lab2' folder")
-print("Files created:")
-print("  - numerical_results.txt")
-print("  - [distribution]_characteristics.png (for each distribution)")
-print("  - [distribution]_comparison.png (for each distribution)")
+print("\nAll histograms with characteristics saved to 'results_lab2' folder")

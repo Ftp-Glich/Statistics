@@ -141,7 +141,7 @@ for idx, n in enumerate(sample_sizes):
     avg_ratios = [outlier_results[dist][n]['avg_ratio'] * 100 for dist in dist_names]
     std_ratios = [outlier_results[dist][n]['std_ratio'] * 100 for dist in dist_names]
     
-    axes[idx].bar(x, avg_ratios, width, yerr=std_ratios, capsize=5, 
+    axes[idx].bar(x, avg_ratios, width, 
                   alpha=0.7, color='skyblue', edgecolor='black', label='Avg %')
     axes[idx].set_xlabel('Distribution')
     axes[idx].set_ylabel('Outlier Percentage (%)')

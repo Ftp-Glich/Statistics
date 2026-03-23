@@ -142,13 +142,16 @@ for idx, n in enumerate(sample_sizes):
     std_ratios = [outlier_results[dist][n]['std_ratio'] * 100 for dist in dist_names]
     
     axes[idx].bar(x, avg_ratios, width, 
+<<<<<<< HEAD
                   alpha=0.7, color='skyblue', edgecolor='black', label='Avg %')
+=======
+                  alpha=0.7, color='skyblue', edgecolor='black')
+>>>>>>> 514d0eed0ce0c38c8a03bb97f841ea3da338c1c1
     axes[idx].set_xlabel('Distribution')
     axes[idx].set_ylabel('Outlier Percentage (%)')
     axes[idx].set_title(f'Sample Size n = {n}')
     axes[idx].set_xticks(x)
     axes[idx].set_xticklabels(dist_names, rotation=15, ha='right')
-    axes[idx].legend()
     axes[idx].grid(True, alpha=0.3, axis='y')
 
 plt.suptitle('Average Outlier Proportion by Distribution and Sample Size', 
@@ -156,6 +159,7 @@ plt.suptitle('Average Outlier Proportion by Distribution and Sample Size',
 plt.tight_layout()
 plt.savefig('results_lab3/outlier_comparison.png', dpi=300, bbox_inches='tight')
 plt.close()
+
 
 print("✅ Comparison plot saved")
 

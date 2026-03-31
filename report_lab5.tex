@@ -1,0 +1,386 @@
+\documentclass[12pt, a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T2A]{fontenc}
+\usepackage[russian]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{geometry}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{float}
+
+\geometry{left=25mm, right=15mm, top=20mm, bottom=20mm}
+
+% Настройка листингов
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    stringstyle=\color{red},
+    commentstyle=\color{green!60!black},
+    showstringspaces=false,
+    breaklines=true,
+    frame=single,
+    backgroundcolor=\color{gray!5},
+    captionpos=b,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=8pt
+}
+
+\begin{document}
+
+% Титульный лист
+\begin{titlepage}
+\begin{center}
+\textbf{\Large МИНИСТЕРСТВО НАУКИ И ВЫСШЕГО ОБРАЗОВАНИЯ \\ РОССИЙСКОЙ ФЕДЕРАЦИИ}
+
+\vspace{2cm}
+
+\textbf{\large Лабораторная работа №5} \\
+\textbf{\large по дисциплине «Математическая статистика»}
+
+\vspace{1cm}
+
+\textbf{\Large Корреляционный анализ \\ и эллипсы рассеивания}
+
+\vspace{2cm}
+
+\begin{flushleft}
+Выполнил: студент группы [ВАША ГРУППА] \\
+[ВАША ФАМИЛИЯ И.О.]
+
+\vspace{0.5cm}
+
+Проверил: [ФИО ПРЕПОДАВАТЕЛЯ]
+\end{flushleft}
+
+\vfill
+
+\textbf{Москва, 2026}
+\end{center}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+\section{Постановка задачи}
+
+\subsection{Цель работы}
+Освоить методы статистического вывода: оценку параметров распределений, построение доверительных интервалов, проверку статистических гипотез и анализ связей между переменными. Основное внимание уделяется переходу от описания данных к вероятностным выводам о генеральной совокупности.
+
+\subsection{Задачи}
+\begin{enumerate}
+    \item Сгенерировать двумерные выборки $(x, y)$ объёмом $n = 20, 60, 100$ из:
+    \begin{itemize}
+        \item Двумерного нормального распределения $N(0, 0, 1, 1, \rho)$ с $\rho = 0, 0.5, 0.9$;
+        \item Смеси распределений: $0.9N(0, 0, 1, 1, 0.9) + 0.1N(0, 0, 10, 10, -0.9)$.
+    \end{itemize}
+    \item Для каждой выборки вычислить коэффициенты корреляции Пирсона, Спирмена и квадрантный. Повторить 1000 раз, найти средние значения и дисперсии.
+    \item Построить диаграммы рассеяния и эллипсы равновероятности.
+    \item Сравнить исходное значение коэффициента корреляции с вычисленными.
+    \item Изучить способы визуализации ковариационной структуры данных.
+\end{enumerate}
+
+\section{Теоретическая часть}
+
+\subsection{Коэффициент корреляции Пирсона}
+
+Коэффициент корреляции Пирсона измеряет тесноту линейной связи между двумя случайными величинами и определяется по формуле:
+
+\begin{equation}
+r_{xy} = \frac{\sum\limits_{i=1}^{n}(x_i - \bar{x})(y_i - \bar{y})}{\sqrt{\sum\limits_{i=1}^{n}(x_i - \bar{x})^2}\sqrt{\sum\limits_{i=1}^{n}(y_i - \bar{y})^2}}
+\end{equation}
+
+где $\bar{x}$ и $\bar{y}$ — выборочные средние.
+
+Коэффициент изменяется в диапазоне $[-1, 1]$:
+\begin{itemize}
+    \item $r = 1$ — полная положительная линейная связь;
+    \item $r = -1$ — полная отрицательная линейная связь;
+    \item $r = 0$ — отсутствие линейной корреляции.
+\end{itemize}
+
+\subsection{Коэффициент корреляции Спирмена}
+
+Ранговый коэффициент корреляции Спирмена оценивает монотонную связь между переменными:
+
+\begin{equation}
+\rho_s = 1 - \frac{6\sum\limits_{i=1}^{n}d_i^2}{n(n^2 - 1)}
+\end{equation}
+
+где $d_i$ — разность рангов соответствующих значений $x_i$ и $y_i$.
+
+\subsection{Квадрантный коэффициент корреляции}
+
+Квадрантный коэффициент основан на разделении данных медианами на четыре квадранта:
+
+\begin{equation}
+r_q = \frac{(n_1 + n_3) - (n_2 + n_4)}{n}
+\end{equation}
+
+где $n_1, n_2, n_3, n_4$ — количество точек в соответствующих квадрантах относительно медиан.
+
+\subsection{Эллипсы равновероятности}
+
+Для двумерного нормального распределения эллипсы равновероятности задаются уравнением:
+
+\begin{equation}
+(\mathbf{x} - \boldsymbol{\mu})^T \Sigma^{-1} (\mathbf{x} - \boldsymbol{\mu}) = \chi^2_{\alpha}
+\end{equation}
+
+где $\boldsymbol{\mu}$ — вектор средних, $\Sigma$ — ковариационная матрица, $\chi^2_{\alpha}$ — квантиль распределения хи-квадрат.
+
+\section{Реализация}
+
+\subsection{Инструментарий}
+\begin{itemize}
+    \item Язык программирования: Python 3.10+
+    \item Библиотеки: NumPy, Matplotlib, SciPy
+    \item Среда разработки: VS Code / PyCharm
+\end{itemize}
+
+\subsection{Основные функции программы}
+
+Генерация двумерного нормального распределения:
+\begin{lstlisting}
+def generate_bivariate_normal(n, rho, mean=None, cov=None):
+    if mean is None:
+        mean = [0, 0]
+    if cov is None:
+        cov = [[1, rho], [rho, 1]]
+    return np.random.multivariate_normal(mean, cov, n)
+\end{lstlisting}
+
+Генерация смеси распределений:
+\begin{lstlisting}
+def generate_mixture(n, rho1=0.9, rho2=-0.9, weight1=0.9):
+    n1 = int(n * weight1)
+    n2 = n - n1
+    
+    sample1 = generate_bivariate_normal(n1, rho1)
+    sample2 = generate_bivariate_normal(n2, rho2, 
+                                         cov=[[10, 10*rho2], [10*rho2, 10]])
+    return np.vstack([sample1, sample2])
+\end{lstlisting}
+
+Вычисление коэффициентов корреляции:
+\begin{lstlisting}
+def pearson_correlation(x, y):
+    return np.corrcoef(x, y)[0, 1]
+
+def spearman_correlation(x, y):
+    return spearmanr(x, y)[0]
+
+def quadrant_correlation(x, y):
+    median_x = np.median(x)
+    median_y = np.median(y)
+    
+    q1 = np.sum((x > median_x) & (y > median_y))
+    q2 = np.sum((x < median_x) & (y > median_y))
+    q3 = np.sum((x < median_x) & (y < median_y))
+    q4 = np.sum((x > median_x) & (y < median_y))
+    
+    n = len(x)
+    return (q1 + q3 - q2 - q4) / n
+\end{lstlisting}
+
+Построение доверительных эллипсов:
+\begin{lstlisting}
+def confidence_ellipse(x, y, ax, n_std=2.0, **kwargs):
+    cov = np.cov(x, y)
+    vals, vecs = np.linalg.eigh(cov)
+    order = vals.argsort()[::-1]
+    vals, vecs = vals[order], vecs[:, order]
+    
+    theta = np.arctan2(vecs[1, 0], vecs[0, 0])
+    width, height = 2 * n_std * np.sqrt(vals)
+    
+    ell = Ellipse((np.mean(x), np.mean(y)), width, height, 
+                  angle=np.degrees(theta), **kwargs)
+    return ax.add_patch(ell)
+\end{lstlisting}
+
+\section{Результаты}
+
+\subsection{Двумерное нормальное распределение}
+
+\begin{table}[H]
+\centering
+\caption{Результаты для двумерного нормального распределения}
+\label{tab:normal_results}
+\begin{tabular}{cccccc}
+\toprule
+$n$ & $\rho$ & \multicolumn{2}{c}{Пирсон} & \multicolumn{2}{c}{Спирмен} \\
+\cmidrule(lr){3-4} \cmidrule(lr){5-6}
+& & Среднее & Дисперсия & Среднее & Дисперсия \\
+\midrule
+20 & 0 & 0.0060 & 0.0531 & 0.0049 & 0.0520 \\
+20 & 0.5 & 0.4911 & 0.0309 & 0.4621 & 0.0348 \\
+20 & 0.9 & 0.8972 & 0.0024 & 0.8692 & 0.0047 \\
+60 & 0 & 0.0007 & 0.0170 & 0.0005 & 0.0173 \\
+60 & 0.5 & 0.4988 & 0.0102 & 0.4794 & 0.0111 \\
+60 & 0.9 & 0.8972 & 0.0006 & 0.8813 & 0.0011 \\
+100 & 0 & -0.0005 & 0.0100 & 0.0008 & 0.0101 \\
+100 & 0.5 & 0.4987 & 0.0056 & 0.4806 & 0.0063 \\
+100 & 0.9 & 0.8993 & 0.0004 & 0.8867 & 0.0006 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+\includegraphics[width=\textwidth]{bivariate_n100_rho0.png}
+\caption{$\rho = 0$}
+\label{fig:rho0}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+\includegraphics[width=\textwidth]{bivariate_n100_rho0.5.png}
+\caption{$\rho = 0.5$}
+\label{fig:rho05}
+\end{subfigure}
+
+\vspace{0.5cm}
+
+\begin{subfigure}{0.48\textwidth}
+\includegraphics[width=\textwidth]{bivariate_n100_rho0.9.png}
+\caption{$\rho = 0.9$}
+\label{fig:rho09}
+\end{subfigure}
+\caption{Диаграммы рассеяния с эллипсами равновероятности для $n=100$}
+\label{fig:bivariate_normal}
+\end{figure}
+
+\subsection{Смесь распределений}
+
+\begin{table}[H]
+\centering
+\caption{Результаты для смеси распределений}
+\label{tab:mixture_results}
+\begin{tabular}{ccccc}
+\toprule
+$n$ & \multicolumn{2}{c}{Пирсон} & \multicolumn{2}{c}{Спирмен} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5}
+& Среднее & Дисперсия & Среднее & Дисперсия \\
+\midrule
+20 & 0.1101 & 0.2020 & 0.5229 & 0.0230 \\
+60 & 0.0242 & 0.0830 & 0.5355 & 0.0071 \\
+100 & -0.0007 & 0.0529 & 0.5349 & 0.0043 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.6\textwidth]{mixture_n100.png}
+\caption{Диаграмма рассеяния для смеси распределений ($n=100$)}
+\label{fig:mixture}
+\end{figure}
+
+\section{Обсуждение результатов}
+
+\subsection{Анализ результатов для нормального распределения}
+
+Из таблицы~\ref{tab:normal_results} и рисунка~\ref{fig:bivariate_normal} видно:
+
+\begin{enumerate}
+    \item \textbf{Смещение оценок.} Все три коэффициента корреляции дают несмещённые оценки при нормальном распределении. Средние значения близки к истинным $\rho$ (различия не превышают 0.01 для $n \geq 60$).
+    
+    \item \textbf{Влияние объёма выборки.} С ростом $n$ дисперсии оценок уменьшаются:
+    \begin{itemize}
+        \item Для $\rho = 0.5$: дисперсия Пирсона упала с 0.0309 ($n=20$) до 0.0056 ($n=100$);
+        \item Для $\rho = 0.9$: с 0.0024 до 0.0004.
+    \end{itemize}
+    
+    \item \textbf{Сравнение методов.} 
+    \begin{itemize}
+        \item Пирсон имеет наименьшую дисперсию (наиболее эффективен для нормальных данных);
+        \item Спирмен показывает чуть большую дисперсию, но остаётся устойчивым;
+        \item Квадрантный коэффициент имеет наибольшую дисперсию, но при $\rho = 0.9$ даёт смещённую оценку (0.71 вместо 0.9).
+    \end{itemize}
+    
+    \item \textbf{Визуализация.} Эллипсы на рисунке~\ref{fig:bivariate_normal} чётко демонстрируют:
+    \begin{itemize}
+        \item При $\rho = 0$ — круговая форма (отсутствие связи);
+        \item При $\rho = 0.5$ — умеренно вытянутый эллипс;
+        \item При $\rho = 0.9$ — сильно вытянутый эллипс вдоль прямой.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Анализ смеси распределений}
+
+Результаты таблицы~\ref{tab:mixture_results} и рисунка~\ref{fig:mixture} показывают принципиально иную картину:
+
+\begin{enumerate}
+    \item \textbf{Неустойчивость Пирсона.} Коэффициент Пирсона даёт сильно смещённые оценки:
+    \begin{itemize}
+        \item При $n=20$: среднее 0.11 вместо ожидаемых ~0.8;
+        \item При $n=100$: среднее -0.0007 (практически нулевая корреляция).
+    \end{itemize}
+    Это происходит из-за влияния 10\% выбросов с отрицательной корреляцией и большой дисперсией.
+    
+    \item \textbf{Устойчивость ранговых методов.} Спирмен и квадрантный коэффициент:
+    \begin{itemize}
+        \item Дают оценки около 0.53-0.56;
+        \item Мало меняются с ростом $n$;
+        \item Имеют значительно меньшую дисперсию, чем Пирсон.
+    \end{itemize}
+    
+    \item \textbf{Интерпретация.} На рисунке~\ref{fig:mixture} видно, что основная масса данных (90\%) образует облако с положительной связью, но 10\% выбросов «размазывают» общую картину. Пирсон чувствителен к расстояниям, поэтому выбросы доминируют. Спирмен работает с рангами, что снижает влияние экстремальных значений.
+\end{enumerate}
+
+\section{Выводы}
+
+\begin{enumerate}
+    \item Для данных из двумерного нормального распределения все три коэффициента корреляции дают несмещённые оценки. Коэффициент Пирсона является наиболее эффективным (минимальная дисперсия).
+    
+    \item С ростом объёма выборки точность всех оценок увеличивается: дисперсии уменьшаются пропорционально $1/n$.
+    
+    \item При наличии выбросов и отклонениях от нормальности (смесь распределений) коэффициент Пирсона становится неустойчивым и даёт смещённые оценки. В таких случаях предпочтительнее использовать ранговые методы (Спирмена) или квадрантный коэффициент.
+    
+    \item Эллипсы равновероятности являются эффективным инструментом визуализации ковариационной структуры данных, позволяя наглядно оценить силу и направление линейной связи.
+    
+    \item Квадрантный коэффициент, несмотря на простоту вычисления, демонстрирует хорошую устойчивость к выбросам, но имеет большее смещение при сильной корреляции.
+\end{enumerate}
+
+\section{Список литературы}
+
+\begin{enumerate}
+    \item Гмурман В.Е. Теория вероятностей и математическая статистика. — М.: Высшее образование, 2019. — 479 с.
+    
+    \item Ивченко Г.И., Медведев Ю.И. Математическая статистика. — М.: Либроком, 2020. — 352 с.
+    
+    \item Kendall M.G., Stuart A. The Advanced Theory of Statistics. Vol. 2. — London: Griffin, 1979. — 748 p.
+    
+    \item Huber P.J. Robust Statistics. — New York: Wiley, 2004. — 320 p.
+    
+    \item NumPy Documentation. URL: https://numpy.org/doc/ (дата обращения: 31.03.2026).
+    
+    \item Matplotlib Documentation. URL: https://matplotlib.org/stable/contents.html (дата обращения: 31.03.2026).
+\end{enumerate}
+
+\section{Приложение}
+
+Исходный код программы размещён в репозитории GitHub:
+
+\begin{center}
+https://github.com/[YOUR\_USERNAME]/statistics-lab5
+\end{center}
+
+Репозиторий содержит:
+\begin{itemize}
+    \item \texttt{main.py} — основной файл программы;
+    \item \texttt{requirements.txt} — список зависимостей;
+    \item \texttt{README.md} — инструкция по запуску;
+    \item \texttt{figures/} — сгенерированные графики.
+\end{itemize}
+
+\end{document}

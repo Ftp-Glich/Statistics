@@ -353,6 +353,135 @@ plt.show()
 \label{fig:all_comparison}
 \end{figure}
 
+\subsection*{5.7 Влияние параметра сглаживания $h$ на ядерную оценку плотности}
+
+Параметр сглаживания (bandwidth) $h$ в ядерной оценке плотности критически влияет на качество аппроксимации.
+
+\textbf{Формула KDE с параметром $h$:}
+\begin{equation}
+\hat{f}_h(x) = \frac{1}{nh} \sum_{i=1}^{n} K\left(\frac{x - x_i}{h}\right)
+\end{equation}
+
+\textbf{Эффект выбора $h$:}
+\begin{itemize}
+    \item \textbf{Малое $h$} (например, 0.1): оценка следует за каждой точкой выборки, возникает ``шум'' и переобучение
+    \item \textbf{Большое $h$} (например, 1.0): оценка слишком гладкая, теряются детали распределения (недообучение)
+    \item \textbf{Оптимальное $h$}: баланс между смещением и дисперсией оценки
+\end{itemize}
+
+\textbf{Правило Скотта для автоматического выбора $h$:}
+\begin{equation}
+h_{\text{Scott}} = 1.06 \cdot \hat{\sigma} \cdot n^{-1/5}
+\end{equation}
+где $\hat{\sigma}$ — выборочное стандартное отклонение.
+
+\subsubsection*{Сравнение оценок при разных $h$}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{results_lab4/normal_bandwidth_comparison.png}
+\caption{Сравнение KDE при разных значениях $h$ для нормального распределения ($n=100$)}
+\label{fig:normal_bandwidth}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{results_lab4/cauchy_bandwidth_comparison.png}
+\caption{Сравнение KDE при разных значениях $h$ для распределения Коши ($n=100$)}
+\label{fig:cauchy_bandwidth}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{results_lab4/laplace_bandwidth_comparison.png}
+\caption{Сравнение KDE при разных значениях $h$ для распределения Лапласа ($n=100$)}
+\label{fig:laplace_bandwidth}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{results_lab4/poisson_bandwidth_comparison.png}
+\caption{Сравнение KDE при разных значениях $h$ для распределения Пуассона ($n=100$)}
+\label{fig:poisson_bandwidth}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{results_lab4/uniform_bandwidth_comparison.png}
+\caption{Сравнение KDE при разных значениях $h$ для равномерного распределения ($n=100$)}
+\label{fig:uniform_bandwidth}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{results_lab4/mse_vs_bandwidth.png}
+\caption{Зависимость среднеквадратичной ошибки (MSE) от параметра $h$ для нормального распределения}
+\label{fig:mse_bandwidth}
+\end{figure}
+
+\textbf{Наблюдения по каждому распределению:}
+
+\begin{enumerate}
+    \item \textbf{Нормальное распределение $N(0,1)$:}
+    \begin{itemize}
+        \item При $h=0.1$ оценка ``зубчатая'', повторяет случайные флуктуации выборки
+        \item При $h=1.0$ оценка слишком гладкая, размывается пик
+        \item Правило Скотта ($h \approx 0.4$) даёт хороший баланс
+        \item Теоретическая кривая хорошо воспроизводится при оптимальном $h$
+    \end{itemize}
+    
+    \item \textbf{Распределение Коши $C(0,1)$:}
+    \begin{itemize}
+        \item Из-за тяжёлых хвостов малые $h$ усиливают влияние выбросов
+        \item Большие $h$ сглаживают хвосты, но теряют информацию о форме
+        \item Автоматический выбор $h$ работает удовлетворительно
+        \item Даже при оптимальном $h$ оценка менее точна из-за высокой дисперсии выборки
+    \end{itemize}
+    
+    \item \textbf{Распределение Лапласа $L(0, 1/\sqrt{2})$:}
+    \begin{itemize}
+        \item Острый пик в центре требует достаточно малого $h$ для воспроизведения
+        \item При больших $h$ пик размывается, оценка становится похожей на нормальную
+        \item Оптимальное $h$ позволяет сохранить характерную форму с острым центром
+    \end{itemize}
+    
+    \item \textbf{Распределение Пуассона $P(10)$:}
+    \begin{itemize}
+        \item Дискретная природа распределения делает KDE менее естественным методом
+        \item Малые $h$ создают ``пики'' в точках выборки
+        \item Большие $h$ сглаживают дискретность, приближая к непрерывной оценке
+        \item Для дискретных данных гистограмма часто предпочтительнее KDE
+    \end{itemize}
+    
+    \item \textbf{Равномерное распределение $U(-\sqrt{3}, \sqrt{3})$:}
+    \begin{itemize}
+        \item Прямоугольная форма плотности плохо воспроизводится гауссовым ядром
+        \item Малые $h$ дают ``волнистую'' оценку с артефактами на границах
+        \item Большие $h$ размывают резкие границы, создавая ``колоколообразную'' оценку
+        \item Это фундаментальное ограничение гауссова ядра для распределений с разрывами
+    \end{itemize}
+\end{enumerate}
+
+\textbf{Анализ MSE (среднеквадратичной ошибки):}
+
+График \ref{fig:mse_bandwidth} показывает зависимость $MSE = \mathbb{E}[(\hat{f}_h(x) - f(x))^2]$ от параметра $h$ для нормального распределения:
+
+\begin{itemize}
+    \item Кривая имеет \textbf{U-образную форму}: ошибка велика при очень малых и очень больших $h$
+    \item \textbf{Минимум MSE} достигается вблизи значения по правилу Скотта
+    \item Это подтверждает теоретическую оптимальность правила $h = 1.06 \cdot \sigma \cdot n^{-1/5}$
+    \item Для других распределений форма кривой аналогична, но положение минимума может отличаться
+\end{itemize}
+
+\textbf{Практические рекомендации:}
+\begin{itemize}
+    \item Начинать с автоматического выбора ($h_{\text{Scott}}$ или $h_{\text{Silverman}}$)
+    \item Визуально проверять результат: оценка должна быть гладкой, но сохранять основные особенности
+    \item При наличии выбросов рассмотреть робастные методы оценки $h$
+    \item Для сравнения распределений использовать одинаковый $h$
+    \item Для дискретных данных или распределений с разрывами рассмотреть альтернативы KDE
+\end{itemize}
+
 \section*{6. Обсуждение}
 
 \subsection*{6.1 Влияние размера выборки}

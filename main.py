@@ -27,9 +27,6 @@ x_ranges = {
     'Uniform': (-4, 4)
 }
 
-def empirical_cdf(sample, x):
-    return np.sum(sample <= x) / len(sample)
-
 print("=" * 60)
 print("LABORATORY WORK #4: Empirical CDF and Kernel Density")
 print("=" * 60)
@@ -50,14 +47,11 @@ for dist_name, dist_func in distributions.items():
             sample = sample[:n]
         
         if dist_name == 'Poisson':
-            sample_plot = np.clip(sample, x_min, x_max)
+            x_ecdf = np.arange(x_min - 1, x_max + 2, 0.01)
         else:
-            sample_plot = sample
+            x_ecdf = np.linspace(x_min, x_max, 1000)
         
-        sample_plot = sample_plot[(sample_plot >= x_min) & (sample_plot <= x_max)]
-        
-        x_ecdf = np.linspace(x_min, x_max, 1000)
-        y_ecdf = np.array([np.mean(sample_plot <= xi) for xi in x_ecdf])
+        y_ecdf = np.array([np.mean(sample <= xi) for xi in x_ecdf])
         
         if dist_name == 'Normal':
             y_theoretical_cdf = stats.norm.cdf(x_ecdf, loc=0, scale=1)
@@ -66,26 +60,23 @@ for dist_name, dist_func in distributions.items():
         elif dist_name == 'Laplace':
             y_theoretical_cdf = stats.laplace.cdf(x_ecdf, loc=0, scale=1/np.sqrt(2))
         elif dist_name == 'Poisson':
-            y_theoretical_cdf = stats.poisson.cdf(np.arange(x_min, x_max+1), mu=10)
-            x_theoretical = np.arange(x_min, x_max+1)
+            y_theoretical_cdf = stats.poisson.cdf(np.floor(x_ecdf).astype(int), mu=10)
         elif dist_name == 'Uniform':
             y_theoretical_cdf = stats.uniform.cdf(x_ecdf, loc=-np.sqrt(3), scale=2*np.sqrt(3))
         
-        if dist_name == 'Poisson':
-            axes_ecdf[idx].step(np.sort(sample_plot), np.arange(1, len(sample_plot)+1) / len(sample_plot), 
-                               where='post', label='Empirical CDF', color='blue')
-            axes_ecdf[idx].stairs(np.cumsum(stats.poisson.pmf(np.arange(x_min, x_max+1), 10)), 
-                                 np.arange(x_min, x_max+2), label='Theoretical CDF', color='red')
-        else:
-            axes_ecdf[idx].step(np.sort(sample_plot), np.arange(1, len(sample_plot)+1) / len(sample_plot), 
-                               where='post', label='Empirical CDF', color='blue')
-            axes_ecdf[idx].plot(x_ecdf, y_theoretical_cdf, 'r-', linewidth=2, label='Theoretical CDF')
+        axes_ecdf[idx].step(x_ecdf, y_ecdf, where='post', label='Empirical CDF', 
+                           color='blue', linewidth=1.5, alpha=0.8)
+        axes_ecdf[idx].plot(x_ecdf, y_theoretical_cdf, 'r-', linewidth=2, 
+                           label='Theoretical CDF', alpha=0.9)
         
         axes_ecdf[idx].set_title(f'n = {n}')
         axes_ecdf[idx].set_xlabel('x')
         axes_ecdf[idx].set_ylabel('F(x)')
         axes_ecdf[idx].legend(fontsize=8)
         axes_ecdf[idx].grid(True, alpha=0.3)
+        axes_ecdf[idx].set_xlim(x_min, x_max)  
+        
+        sample_plot = sample[(sample >= x_min) & (sample <= x_max)]
         
         if dist_name != 'Poisson':
             kde = gaussian_kde(sample_plot)
@@ -119,6 +110,8 @@ for dist_name, dist_func in distributions.items():
         axes_kde[idx].set_ylabel('Density')
         axes_kde[idx].legend(fontsize=8)
         axes_kde[idx].grid(True, alpha=0.3)
+        if dist_name != 'Poisson':
+            axes_kde[idx].set_xlim(x_min, x_max)
     
     plt.suptitle(f'{dist_name} Distribution - Empirical CDF', fontsize=14, fontweight='bold')
     plt.tight_layout()
@@ -149,7 +142,11 @@ for idx, (dist_name, dist_func) in enumerate(distributions.items()):
     x_min, x_max = x_ranges[dist_name]
     sample = sample[(sample >= x_min) & (sample <= x_max)]
     
-    x_ecdf = np.linspace(x_min, x_max, 1000)
+    if dist_name == 'Poisson':
+        x_ecdf = np.arange(x_min - 1, x_max + 2, 0.01)
+    else:
+        x_ecdf = np.linspace(x_min, x_max, 1000)
+    
     y_ecdf = np.array([np.mean(sample <= xi) for xi in x_ecdf])
     
     if dist_name == 'Normal':
@@ -162,26 +159,27 @@ for idx, (dist_name, dist_func) in enumerate(distributions.items()):
         y_theoretical_cdf = stats.laplace.cdf(x_ecdf, loc=0, scale=1/np.sqrt(2))
         y_theoretical_pdf = stats.laplace.pdf(x_ecdf, loc=0, scale=1/np.sqrt(2))
     elif dist_name == 'Poisson':
+        y_theoretical_cdf = stats.poisson.cdf(np.floor(x_ecdf).astype(int), mu=10)
         x_poisson = np.arange(x_min, x_max+1)
-        y_theoretical_cdf = stats.poisson.cdf(x_poisson, mu=10)
         y_theoretical_pdf = stats.poisson.pmf(x_poisson, mu=10)
-        x_ecdf = x_poisson
     elif dist_name == 'Uniform':
         y_theoretical_cdf = stats.uniform.cdf(x_ecdf, loc=-np.sqrt(3), scale=2*np.sqrt(3))
         y_theoretical_pdf = stats.uniform.pdf(x_ecdf, loc=-np.sqrt(3), scale=2*np.sqrt(3))
-    
-    axes[idx, 0].step(np.sort(sample), np.arange(1, len(sample)+1) / len(sample), 
-                     where='post', label='Empirical CDF', color='blue', linewidth=1.5)
+    axes[idx, 0].step(x_ecdf, y_ecdf, where='post', label='Empirical CDF', 
+                     color='blue', linewidth=1.5, alpha=0.8)
     if dist_name == 'Poisson':
-        axes[idx, 0].stairs(np.cumsum(y_theoretical_pdf), np.arange(x_min, x_max+2), 
-                           label='Theoretical CDF', color='red', linewidth=1.5)
+        axes[idx, 0].step(x_ecdf, y_theoretical_cdf, where='post', 
+                         label='Theoretical CDF', color='red', linewidth=2, alpha=0.9)
     else:
-        axes[idx, 0].plot(x_ecdf, y_theoretical_cdf, 'r-', linewidth=2, label='Theoretical CDF')
+        axes[idx, 0].plot(x_ecdf, y_theoretical_cdf, 'r-', linewidth=2, 
+                         label='Theoretical CDF', alpha=0.9)
+    
     axes[idx, 0].set_title(f'{dist_name} - ECDF')
     axes[idx, 0].set_xlabel('x')
     axes[idx, 0].set_ylabel('F(x)')
     axes[idx, 0].legend(fontsize=7)
     axes[idx, 0].grid(True, alpha=0.3)
+    axes[idx, 0].set_xlim(x_min, x_max)
     
     axes[idx, 1].hist(sample, bins='sqrt', density=True, alpha=0.3, 
                      color='gray', edgecolor='black', label='Histogram')
@@ -193,13 +191,19 @@ for idx, (dist_name, dist_func) in enumerate(distributions.items()):
     else:
         axes[idx, 1].stem(x_poisson, y_theoretical_pdf, linefmt='r--', markerfmt='ro', 
                          basefmt=' ', label='Theoretical PMF')
+    
     axes[idx, 1].set_title(f'{dist_name} - KDE')
     axes[idx, 1].set_xlabel('x')
     axes[idx, 1].set_ylabel('Density')
     axes[idx, 1].legend(fontsize=7)
     axes[idx, 1].grid(True, alpha=0.3)
+    if dist_name != 'Poisson':
+        axes[idx, 1].set_xlim(x_min, x_max)
 
 plt.suptitle('Comparison of All Distributions (n=100)', fontsize=14, fontweight='bold')
 plt.tight_layout()
 plt.savefig('results_lab4/all_distributions_comparison.png', dpi=300, bbox_inches='tight')
 plt.close(fig_comparison)
+
+print("✅ Comparison plot saved")
+print("\n🎉 All results saved to 'results_lab4' folder")
